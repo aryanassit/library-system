@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BMS | Modern Library Management System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="shortcut icon" href="http://googleusercontent.com/immersive_entry_chip/1" type="image/x-icon">
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+  </head>
+  <body>
+    <div class="main-container">
+      <nav class="top-nav">
+        <a href="#" class="logo" style="display: flex; align-items: center">
+          <svg
+            width="150"
+            height="40"
+            viewBox="0 0 150 40"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#58a6ff" />
+                <stop offset="100%" stop-color="#a371f7" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M20 5C11.1634 5 5 11.1634 5 20C5 28.8366 11.1634 35 20 35C22.2884 35 24.4533 34.4571 26.3636 33.5"
+              stroke="url(#logoGradient)"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+            <path
+              d="M20 5C28.8366 5 35 11.1634 35 20C35 22.2884 34.4571 24.4533 33.5 26.3636"
+              stroke="#58a6ff"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+            <line
+              x1="20"
+              y1="5"
+              x2="20"
+              y2="35"
+              stroke="#30363d"
+              stroke-width="2"
+            />
+
+            <text
+              x="45"
+              y="28"
+              font-family="Poppins, sans-serif"
+              font-size="24"
+              font-weight="600"
+              fill="#c9d1d9"
+            >
+              BMS
+            </text>
+          </svg>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="admin-btns">
+          <button class="btn login-btn">Login</button>
+          <button class="btn signup-btn">Register</button>
+        </div>
+        <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+      </nav>
+
+      <main>
+        <section id="home" class="hero-section hidden">
+          <div class="hero-content">
+            <h1>Manage Your Digital Library, Effortlessly.</h1>
+            <p>
+              Your ultimate solution for organizing books, tracking reading
+              progress, and discovering new worlds. Welcome to the future of
+              book management.
+            </p>
+            <a href="#features" class="btn explore-btn"
+              >Explore Features <i class="fas fa-arrow-right"></i
+            ></a>
+          </div>
+          <div class="hero-image">
+            <img
+              src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2070&auto=format&fit=crop"
+              alt="Modern Library with Bookshelves"
+            />
+          </div>
+        </section>
+
+        <section id="about" class="about-section hidden">
+          <h2>About BMS</h2>
+          <p>
+            The Book Management System (BMS) is a passion project designed for
+            the modern reader. We believe that managing your book collection
+            should be as enjoyable as reading itself. Our platform provides
+            intuitive tools to catalog your library, track reading habits, and
+            connect with a community of fellow book lovers, all within a
+            beautiful, user-friendly interface.
+          </p>
+          <a href="#" class="btn read-more-btn">Learn More</a>
+        </section>
+
+        <section id="features" class="features hidden">
+          <h2>Why You'll Love BMS</h2>
+          <div class="features-list">
+            <div class="feature-item">
+              <div class="icon"><i class="fas fa-book-open"></i></div>
+              <h3>Easy Book Entry</h3>
+              <p>
+                Quickly add books to your collection using ISBN scan or manual
+                entry. All your books, perfectly organized.
+              </p>
+            </div>
+            <div class="feature-item">
+              <div class="icon"><i class="fas fa-search"></i></div>
+              <h3>Advanced Search</h3>
+              <p>
+                Instantly find any book in your library with powerful search and
+                filtering by author, genre, or status.
+              </p>
+            </div>
+            <div class="feature-item">
+              <div class="icon"><i class="fas fa-chart-line"></i></div>
+              <h3>Reading Statistics</h3>
+              <p>
+                Gain insights into your reading habits with detailed stats on
+                pages read, genres explored, and more.
+              </p>
+            </div>
+            <div class="feature-item">
+              <div class="icon"><i class="fas fa-lightbulb"></i></div>
+              <h3>Personalized Picks</h3>
+              <p>
+                Discover your next favorite book with smart recommendations
+                based on your reading history.
+              </p>
+            </div>
+            <div class="feature-item">
+              <div class="icon"><i class="fas fa-cloud"></i></div>
+              <h3>Cloud Sync & Backup</h3>
+              <p>
+                Access your library from any device, anytime. Your collection is
+                always safe and securely backed up.
+              </p>
+            </div>
+            <div class="feature-item">
+              <div class="icon"><i class="fas fa-users"></i></div>
+              <h3>Community Features</h3>
+              <p>
+                Share reviews, join reading challenges, and connect with a
+                vibrant community of book enthusiasts.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" class="contact-section hidden">
+          <h2>Get In Touch</h2>
+          <div class="contact-content">
+            <div class="contact-info">
+              <h3>Have a question or feedback?</h3>
+              <p>
+                We'd love to hear from you! Our team is always ready to assist
+                with any inquiries you may have. Connect with us through our
+                social channels or drop a message using the form.
+              </p>
+              <div class="social-icons">
+                <a href="#" title="Facebook"
+                  ><i class="fa-brands fa-facebook"></i
+                ></a>
+                <a href="#" title="Twitter"
+                  ><i class="fa-brands fa-twitter"></i
+                ></a>
+                <a href="#" title="Instagram"
+                  ><i class="fa-brands fa-instagram"></i
+                ></a>
+                <a href="#" title="LinkedIn"
+                  ><i class="fa-brands fa-linkedin"></i
+                ></a>
+                <a href="#" title="GitHub"
+                  ><i class="fa-brands fa-github"></i
+                ></a>
+              </div>
+            </div>
+            <form class="contact-form">
+              <input type="text" placeholder="Your Name" required />
+              <input type="email" placeholder="Your Email" required />
+              <textarea placeholder="Your Message" rows="5" required></textarea>
+              <button type="submit" class="btn submit-btn">Send Message</button>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>
+          &copy; <span id="current-year">2024</span> Book Management System. All
+          rights reserved.
+        </p>
+      </footer>
+    </div>
+    <script src="scripts/app.js"></script>
+  </body>
+</html>
