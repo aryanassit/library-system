@@ -372,4 +372,51 @@ document.addEventListener("DOMContentLoaded", function () {
       errorEl.style.display = "none";
     }
   }
+
+  // FAQ Show More Functionality
+  const showMoreFaqsBtn = document.getElementById("show-more-faqs");
+  const faqHidden = document.querySelector(".faq-hidden");
+
+  if (showMoreFaqsBtn && faqHidden) {
+    showMoreFaqsBtn.addEventListener("click", () => {
+      if (faqHidden.style.display === "none") {
+        faqHidden.style.display = "block";
+        showMoreFaqsBtn.textContent = "Show Less FAQs";
+      } else {
+        faqHidden.style.display = "none";
+        showMoreFaqsBtn.textContent = "Show More FAQs";
+      }
+    });
+  }
+
+  // Policy Modal Functionality
+  const policyModal = document.getElementById("policy-modal");
+  const policyModalBody = document.getElementById("policy-modal-body");
+  const expandBtns = document.querySelectorAll(".expand-btn");
+
+  expandBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const policySection = btn.closest(".policy-section");
+      const policyTitle = policySection.querySelector("h2").textContent;
+      const policyContent = policySection.querySelector(".policy-content").innerHTML;
+
+      policyModalBody.innerHTML = `<h2>${policyTitle}</h2>${policyContent}`;
+      policyModal.style.display = "block";
+      document.body.style.overflow = "hidden"; // Prevent background scrolling
+    });
+  });
+
+  // Close Policy Modal
+  const policyCloseBtn = policyModal.querySelector(".close");
+  policyCloseBtn.addEventListener("click", () => {
+    policyModal.style.display = "none";
+    document.body.style.overflow = "auto"; // Restore scrolling
+  });
+
+  window.addEventListener("click", (event) => {
+    if (event.target === policyModal) {
+      policyModal.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
+  });
 });
