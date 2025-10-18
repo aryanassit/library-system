@@ -24,6 +24,23 @@
   font-family: "Poppins", sans-serif;
 }
 
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -131,6 +148,7 @@ p {
 
 .admin-btns .login-btn {
   background: transparent;
+  margin: 0 10px;
   color: var(--primary-accent);
   border: 1px solid var(--primary-accent);
 }

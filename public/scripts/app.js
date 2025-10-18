@@ -347,69 +347,70 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (isValid) {
         if (form.closest("#register-tab")) {
-          // Handle registration
           const formData = new FormData(form);
           const data = {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-            verificationCode: generatedCode
+            name: formData.get("name"),
+            email: formData.get("email"),
+            password: formData.get("password"),
+            verificationCode: generatedCode,
           };
 
-          fetch('/api/auth/register', {
-            method: 'POST',
+          fetch("/api/auth/register", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
           })
-          .then(response => response.json())
-          .then(result => {
-            if (result.error) {
-              showError("general-error", result.error);
-            } else {
-              showError("success-message", "Registration successful!");
-              modal.style.display = "none";
-              form.reset();
-              generatedCode = null;
-            }
-          })
-          .catch(error => {
-            console.error('Registration error:', error);
-            showError("general-error", "Registration failed. Please try again.");
-          });
+            .then((response) => response.json())
+            .then((result) => {
+              if (result.error) {
+                showError("general-error", result.error);
+              } else {
+                showError("success-message", "Registration successful!");
+                modal.style.display = "none";
+                form.reset();
+                generatedCode = null;
+              }
+            })
+            .catch((error) => {
+              console.error("Registration error:", error);
+              showError(
+                "general-error",
+                "Registration failed. Please try again."
+              );
+            });
         } else if (form.closest("#login-tab")) {
-          // Handle login
           const formData = new FormData(form);
           const data = {
-            email: formData.get('email'),
-            password: formData.get('password'),
-            verificationCode: formData.get('verificationCode')
+            email: formData.get("email"),
+            password: formData.get("password"),
+            verificationCode: formData.get("verificationCode"),
           };
 
-          fetch('/api/auth/login', {
-            method: 'POST',
+          fetch("/api/auth/login", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
           })
-          .then(response => response.json())
-          .then(result => {
-            if (result.error) {
-              showError("general-error", result.error);
-            } else {
-              showError("success-message", "Login successful!");
-              modal.style.display = "none";
-              form.reset();
-              // Redirect to dashboard
-              window.location.href = 'dashboard.html';
-            }
-          })
-          .catch(error => {
-            console.error('Login error:', error);
-            showError("general-error", "Login failed. Please try again.");
-          });
+            .then((response) => response.json())
+            .then((result) => {
+              if (result.error) {
+                showError("general-error", result.error);
+              } else {
+                showError("success-message", "Login successful!");
+                modal.style.display = "none";
+                form.reset();
+
+                window.location.href = "dashboard.html";
+              }
+            })
+            .catch((error) => {
+              console.error("Login error:", error);
+              showError("general-error", "Login failed. Please try again.");
+            });
         }
 
         document
@@ -434,7 +435,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // FAQ Show More Functionality
   const showMoreFaqsBtn = document.getElementById("show-more-faqs");
   const faqHidden = document.querySelector(".faq-hidden");
 
@@ -450,7 +450,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Policy Modal Functionality
   const policyModal = document.getElementById("policy-modal");
   const policyModalBody = document.getElementById("policy-modal-body");
   const expandBtns = document.querySelectorAll(".expand-btn");
@@ -459,19 +458,19 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", () => {
       const policySection = btn.closest(".policy-section");
       const policyTitle = policySection.querySelector("h2").textContent;
-      const policyContent = policySection.querySelector(".policy-content").innerHTML;
+      const policyContent =
+        policySection.querySelector(".policy-content").innerHTML;
 
       policyModalBody.innerHTML = `<h2>${policyTitle}</h2>${policyContent}`;
       policyModal.style.display = "block";
-      document.body.style.overflow = "hidden"; // Prevent background scrolling
+      document.body.style.overflow = "hidden";
     });
   });
 
-  // Close Policy Modal
   const policyCloseBtn = policyModal.querySelector(".close");
   policyCloseBtn.addEventListener("click", () => {
     policyModal.style.display = "none";
-    document.body.style.overflow = "auto"; // Restore scrolling
+    document.body.style.overflow = "auto";
   });
 
   window.addEventListener("click", (event) => {
