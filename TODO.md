@@ -1,0 +1,3 @@
+- [x] Add name attributes to all auth form inputs in public/index.html
+- [x] Update public/scripts/app.js to use correct FormData.get() with names and add redirect after login success
+- [x] Test register and login flows

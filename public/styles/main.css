@@ -9,6 +9,12 @@
   --gradient-text: linear-gradient(90deg, var(--primary-accent), #a371f7);
   --shadow-light: 0 4px 14px 0 rgba(0, 118, 255, 0.39);
   --shadow-dark: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
+  --sidebar-hover: #21262d;
+  --card-bg: #161b22;
+  --success: #56d364;
+  --warning: #d29922;
+  --error: #f85149;
+  --shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
 }
 
 * {
@@ -281,11 +287,14 @@ p {
   background: var(--bg-dark);
   color: var(--text-main);
   font-size: 1rem;
+  transition: all 0.3s ease;
 }
+
 .contact-form input:focus,
 .contact-form textarea:focus {
   outline: none;
   border-color: var(--primary-accent);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
 }
 .contact-form .submit-btn {
   background: var(--primary-accent);
@@ -455,14 +464,14 @@ footer p {
   max-width: 1200px;
 }
 
-#faqs{
-    max-height: none;
-    height: auto;
-    min-height: none;
-    overflow: visible;
-    background: none;
-    border: none;  
-    margin-top: 5rem;
+#faqs {
+  max-height: none;
+  height: auto;
+  min-height: none;
+  overflow: visible;
+  background: none;
+  border: none;
+  margin-top: 5rem;
 }
 
 #faqs .policy-section h2 {
@@ -696,11 +705,13 @@ footer p {
   background: var(--bg-dark);
   color: var(--text-main);
   font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
 .auth-form input:focus {
   outline: none;
   border-color: var(--primary-accent);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
 }
 
 .payment-section {

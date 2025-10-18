@@ -1,0 +1,167 @@
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const router = express.Router();
+const db = require('../database/db');
+
+// GET all users
+router.get('/', (req, res) => {
+  const { search, status, role, sortBy, sortOrder } = req.query;
+
+  let query = 'SELECT id, name, email, role, status, created_at, updated_at FROM users';
+  let params = [];
+  let conditions = [];
+
+  if (search) {
+    conditions.push('(name LIKE ? OR email LIKE ?)');
+    params.push(`%${search}%`, `%${search}%`);
+  }
+
+  if (status && status !== 'all') {
+    conditions.push('status = ?');
+    params.push(status);
+  }
+
+  if (role && role !== 'all') {
+    conditions.push('role = ?');
+    params.push(role);
+  }
+
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  if (sortBy) {
+    const order = sortOrder === 'desc' ? 'DESC' : 'ASC';
+    query += ` ORDER BY ${sortBy} ${order}`;
+  } else {
+    query += ' ORDER BY created_at DESC';
+  }
+
+  db.all(query, params, (err, rows) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      return res.status(500).json({ error: 'Failed to fetch users' });
+    }
+    res.json(rows);
+  });
+});
+
+// GET user by ID
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+  db.get('SELECT id, name, email, role, status, created_at, updated_at FROM users WHERE id = ?', [id], (err, row) => {
+    if (err) {
+      console.error('Error fetching user:', err);
+      return res.status(500).json({ error: 'Failed to fetch user' });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(row);
+  });
+});
+
+// POST new user
+router.post('/', async (req, res) => {
+  const { name, email, password, role, status } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email, and password are required' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const query = `INSERT INTO users (name, email, password_hash, role, status)
+                    VALUES (?, ?, ?, ?, ?)`;
+    const params = [name, email, hashedPassword, role || 'user', status || 'active'];
+
+    db.run(query, params, function(err) {
+      if (err) {
+        console.error('Error creating user:', err);
+        if (err.message.includes('UNIQUE constraint failed')) {
+          return res.status(409).json({ error: 'Email already exists' });
+        }
+        return res.status(500).json({ error: 'Failed to create user' });
+      }
+
+      // Add activity
+      db.run('INSERT INTO activities (description) VALUES (?)',
+             [`New user registered: ${name} (${email})`]);
+
+      res.status(201).json({ id: this.lastID, message: 'User created successfully' });
+    });
+  } catch (error) {
+    console.error('Error hashing password:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
+// PUT update user
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email, password, role, status } = req.body;
+
+  let query = `UPDATE users SET name = ?, email = ?, role = ?, status = ?, updated_at = CURRENT_TIMESTAMP`;
+  let params = [name, email, role, status];
+
+  if (password) {
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      query = query.replace('updated_at = CURRENT_TIMESTAMP', 'password_hash = ?, updated_at = CURRENT_TIMESTAMP');
+      params.splice(2, 0, hashedPassword); // Insert password_hash after email
+    } catch (error) {
+      console.error('Error hashing password:', error);
+      return res.status(500).json({ error: 'Failed to update user' });
+    }
+  }
+
+  query += ' WHERE id = ?';
+  params.push(id);
+
+  db.run(query, params, function(err) {
+    if (err) {
+      console.error('Error updating user:', err);
+      if (err.message.includes('UNIQUE constraint failed')) {
+        return res.status(409).json({ error: 'Email already exists' });
+      }
+      return res.status(500).json({ error: 'Failed to update user' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ message: 'User updated successfully' });
+  });
+});
+
+// DELETE user
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
+
+  // Get user info for activity log
+  db.get('SELECT name, email FROM users WHERE id = ?', [id], (err, user) => {
+    if (err) {
+      console.error('Error fetching user for deletion:', err);
+      return res.status(500).json({ error: 'Failed to delete user' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    db.run('DELETE FROM users WHERE id = ?', [id], function(err) {
+      if (err) {
+        console.error('Error deleting user:', err);
+        return res.status(500).json({ error: 'Failed to delete user' });
+      }
+
+      // Add activity
+      db.run('INSERT INTO activities (description) VALUES (?)',
+             [`User deleted: ${user.name} (${user.email})`]);
+
+      res.json({ message: 'User deleted successfully' });
+    });
+  });
+});
+
+module.exports = router;

@@ -360,12 +360,13 @@
             <div id="login-tab" class="tab-pane active">
               <h3>Login</h3>
               <form class="auth-form">
-                <input type="email" placeholder="Email" required />
+                <input type="email" name="email" placeholder="Email" required />
                 <span class="error-message" id="login-email-error"></span>
-                <input type="password" placeholder="Password" required />
+                <input type="password" name="password" placeholder="Password" required />
                 <span class="error-message" id="login-password-error"></span>
                 <input
                   type="text"
+                  name="verificationCode"
                   placeholder="Verification Code (e.g., ABC123-XYZ)"
                   required
                 />
@@ -382,13 +383,15 @@
               <form class="auth-form">
                 <input
                   type="text"
+                  name="name"
                   placeholder="Username"
                   required
                 />
                 <span class="error-message" id="username-error"></span>
-                <input type="email" placeholder="Email" required />
+                <input type="email" name="email" placeholder="Email" required />
                 <input
                   type="password"
+                  name="password"
                   placeholder="Create Password"
                   required
                 />
@@ -421,6 +424,7 @@
                 </div>
                 <input
                   type="text"
+                  name="verificationCode"
                   placeholder="Verification Code (e.g., ABC123-XYZ)"
                   required
                 />

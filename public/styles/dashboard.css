@@ -1,4 +1,3 @@
-
 :root {
   --dashboard-bg: #0d1117;
   --sidebar-bg: #161b22;
@@ -32,7 +31,6 @@ body {
   display: flex;
   min-height: 100vh;
 }
-
 
 .sidebar {
   width: 250px;
@@ -113,7 +111,6 @@ body {
   margin-right: 0.5rem;
 }
 
-
 .main-content {
   flex: 1;
   margin-left: 250px;
@@ -155,6 +152,11 @@ body {
   color: var(--dashboard-bg);
 }
 
+.notification-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
 .admin-profile {
   display: flex;
   align-items: center;
@@ -172,7 +174,6 @@ body {
 .admin-profile span {
   font-weight: 500;
 }
-
 
 .stats-grid {
   display: grid;
@@ -221,7 +222,6 @@ body {
   font-size: 0.9rem;
 }
 
-
 .quick-actions h2 {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
@@ -257,15 +257,48 @@ body {
   box-shadow: var(--shadow);
 }
 
+.action-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
 
 .recent-activity {
   margin-bottom: 3rem;
 }
 
-.recent-activity h2 {
-  font-size: 1.5rem;
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.activity-header h2 {
+  font-size: 1.5rem;
   color: var(--text-main);
+  margin: 0;
+}
+
+.view-all-activities-btn {
+  background: var(--primary-accent);
+  color: var(--dashboard-bg);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.view-all-activities-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.view-all-activities-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
 }
 
 .activity-list {
@@ -314,7 +347,6 @@ body {
   color: var(--text-muted);
 }
 
-
 .content-section {
   margin-bottom: 3rem;
 }
@@ -347,8 +379,8 @@ body {
   border-color: var(--primary-accent);
 }
 
-
-.books-table, .users-table {
+.books-table,
+.users-table {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -364,7 +396,8 @@ thead {
   background: var(--sidebar-hover);
 }
 
-th, td {
+th,
+td {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
@@ -413,18 +446,14 @@ td {
 }
 
 .action-btn-small:hover {
-  background: var(--sidebar-hover);
+  background: var(--primary-accent);
   color: var(--primary-accent);
 }
 
-.edit-btn:hover {
-  color: var(--warning);
+.action-btn-small:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
 }
-
-.delete-btn:hover {
-  color: var(--error);
-}
-
 
 .reports-grid {
   display: grid;
@@ -474,6 +503,10 @@ td {
   box-shadow: var(--shadow);
 }
 
+.generate-report-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
 
 .settings-form {
   background: var(--card-bg);
@@ -538,6 +571,10 @@ td {
   box-shadow: var(--shadow);
 }
 
+.save-settings-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
 
 .modal {
   display: none;
@@ -636,6 +673,10 @@ td {
   box-shadow: var(--shadow);
 }
 
+.submit-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
 
 .notifications-list {
   max-height: 400px;
@@ -666,6 +707,10 @@ td {
   color: var(--text-muted);
 }
 
+.all-activities-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
 
 .dropdown-menu {
   display: none;
@@ -698,11 +743,9 @@ td {
   width: 16px;
 }
 
-
 .hidden {
   display: none;
 }
-
 
 @media (max-width: 768px) {
   .sidebar {
@@ -767,4 +810,128 @@ td {
     margin: 10% auto;
     width: 95%;
   }
+}
+
+.filter-btn {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: var(--sidebar-hover);
+  border-color: var(--primary-accent);
+}
+
+.filter-btn:focus {
+  outline: none;
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.filter-group select {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--dashboard-bg);
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.apply-filter-btn {
+  align-self: flex-end;
+  padding: 0.5rem 1rem;
+  background: var(--primary-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.apply-filter-btn:hover {
+  background: var(--primary-hover);
+}
+
+.add-book-btn {
+  background: linear-gradient(135deg, var(--primary-accent), #4ade80);
+  color: white;
+  border: none;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-book-btn:hover {
+  background: linear-gradient(135deg, #4ade80, var(--primary-hover));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.add-book-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(86, 211, 100, 0.3);
+}
+
+.add-user-btn {
+  background: linear-gradient(135deg, var(--primary-accent), #4ade80);
+  color: white;
+  border: none;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-user-btn:hover {
+  background: linear-gradient(135deg, #4ade80, var(--primary-hover));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.add-user-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
 }

@@ -346,14 +346,75 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (isValid) {
-        showError("success-message", "Form submitted successfully!");
-        modal.style.display = "none";
-        form.reset();
+        if (form.closest("#register-tab")) {
+          // Handle registration
+          const formData = new FormData(form);
+          const data = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            password: formData.get('password'),
+            verificationCode: generatedCode
+          };
+
+          fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          })
+          .then(response => response.json())
+          .then(result => {
+            if (result.error) {
+              showError("general-error", result.error);
+            } else {
+              showError("success-message", "Registration successful!");
+              modal.style.display = "none";
+              form.reset();
+              generatedCode = null;
+            }
+          })
+          .catch(error => {
+            console.error('Registration error:', error);
+            showError("general-error", "Registration failed. Please try again.");
+          });
+        } else if (form.closest("#login-tab")) {
+          // Handle login
+          const formData = new FormData(form);
+          const data = {
+            email: formData.get('email'),
+            password: formData.get('password'),
+            verificationCode: formData.get('verificationCode')
+          };
+
+          fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          })
+          .then(response => response.json())
+          .then(result => {
+            if (result.error) {
+              showError("general-error", result.error);
+            } else {
+              showError("success-message", "Login successful!");
+              modal.style.display = "none";
+              form.reset();
+              // Redirect to dashboard
+              window.location.href = 'dashboard.html';
+            }
+          })
+          .catch(error => {
+            console.error('Login error:', error);
+            showError("general-error", "Login failed. Please try again.");
+          });
+        }
 
         document
           .querySelectorAll(".error-message")
           .forEach((el) => (el.style.display = "none"));
-        generatedCode = null;
       }
     });
   });
