@@ -16,7 +16,11 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="shortcut icon" href="http://googleusercontent.com/immersive_entry_chip/1" type="image/x-icon">
+    <link
+      rel="shortcut icon"
+      href="http://googleusercontent.com/immersive_entry_chip/1"
+      type="image/x-icon"
+    />
     <link rel="stylesheet" href="styles/main.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
   </head>
@@ -113,6 +117,17 @@
             intuitive tools to catalog your library, track reading habits, and
             connect with a community of fellow book lovers, all within a
             beautiful, user-friendly interface.
+            <br /><br />
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis
+            perspiciatis minus sint explicabo, sapiente adipisci eos dolores!
+            Esse consequatur non rerum nobis culpa aut at optio, facilis an
+            <br /><br />
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim quam
+            mollitia cupiditate vitae vero sequi ipsam, numquam sint quod
+            similique. Laboriosam dignissimos est nihil recusandae quaerat nemo
+            doloremque tempora ullam eos, aperiam non cum architecto aspernatur
+            sapiente dicta nostrum deleniti, ut voluptate numquam, reprehenderit
+            obcaecati corrupti quisquam cumque. Rerum, sed.
           </p>
           <a href="#" class="btn read-more-btn">Learn More</a>
         </section>
@@ -208,13 +223,101 @@
           </div>
         </section>
       </main>
-
       <footer>
         <p>
           &copy; <span id="current-year">2024</span> Book Management System. All
           rights reserved.
         </p>
       </footer>
+
+      <div id="auth-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="login">Login</button>
+            <button class="tab-btn" data-tab="register">Register</button>
+          </div>
+          <div class="tab-content">
+            <div id="login-tab" class="tab-pane active">
+              <h3>Login</h3>
+              <form class="auth-form">
+                <input type="email" placeholder="Email" required />
+                <span class="error-message" id="login-email-error"></span>
+                <input type="password" placeholder="Password" required />
+                <span class="error-message" id="login-password-error"></span>
+                <input
+                  type="text"
+                  placeholder="Verification Code (e.g., ABC123-XYZ)"
+                  required
+                />
+                <span class="error-message" id="login-code-error"></span>
+                <button type="submit" class="submit-btn">Login</button>
+                <p style="text-align: center">
+                  New user?
+                  <a href="#" class="switch-to-register">Register here</a>
+                </p>
+              </form>
+            </div>
+            <div id="register-tab" class="tab-pane">
+              <h3>Register</h3>
+              <form class="auth-form">
+                <input
+                  type="text"
+                  placeholder="Username (no spaces)"
+                  required
+                />
+                <span class="error-message" id="username-error"></span>
+                <input type="email" placeholder="Email" required />
+                <input
+                  type="password"
+                  placeholder="Password (must contain letter, number, symbol)"
+                  required
+                />
+                <span class="error-message" id="password-error"></span>
+                <input
+                  type="password"
+                  placeholder="Confirm Password"
+                  required
+                />
+                <span class="error-message" id="confirm-password-error"></span>
+                <div class="payment-section">
+                  <h4>Payment for Verification Code - $5.99</h4>
+                  <input
+                    type="text"
+                    placeholder="Card Number (16 digits)"
+                    required
+                  />
+                  <span class="error-message" id="card-number-error"></span>
+                  <input
+                    type="text"
+                    placeholder="Expiry Date (MM/YY)"
+                    required
+                  />
+                  <span class="error-message" id="expiry-error"></span>
+                  <input type="text" placeholder="CVV (3 digits)" required />
+                  <span class="error-message" id="cvv-error"></span>
+                  <button type="button" class="pay-btn">
+                    Pay and Get Code
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Verification Code (e.g., ABC123-XYZ)"
+                  required
+                />
+                <span class="error-message" id="register-code-error"></span>
+                <button type="submit" class="submit-btn">Register</button>
+                <p style="text-align: center">
+                  Already a user?
+                  <a href="#" class="switch-to-login">Login here</a>
+                </p>
+              </form>
+            </div>
+            <span class="error-message" id="success-message"></span>
+            <span class="error-message" id="general-error"></span>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="scripts/app.js"></script>
   </body>
