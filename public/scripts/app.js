@@ -479,4 +479,137 @@ document.addEventListener("DOMContentLoaded", function () {
       document.body.style.overflow = "auto";
     }
   });
+
+  const stars = document.querySelectorAll(".stars i");
+  const ratingTextarea = document.querySelector(".rating-section textarea");
+  const ratingSubmitBtn = document.querySelector(".rating-submit-btn");
+
+  stars.forEach((star, index) => {
+    star.addEventListener("click", () => {
+      stars.forEach((s) => s.classList.remove("active"));
+
+      for (let i = 0; i <= index; i++) {
+        stars[i].classList.add("active");
+      }
+    });
+
+    star.addEventListener("mouseover", () => {
+      for (let i = 0; i <= index; i++) {
+        stars[i].classList.add("active");
+      }
+    });
+
+    star.addEventListener("mouseout", () => {
+      const activeStars = document.querySelectorAll(".stars i.active");
+      stars.forEach((s) => s.classList.remove("active"));
+      activeStars.forEach((s) => s.classList.add("active"));
+    });
+  });
+
+  if (ratingSubmitBtn) {
+    ratingSubmitBtn.addEventListener("click", () => {
+      const activeStars = document.querySelectorAll(".stars i.active");
+      const rating = activeStars.length;
+      const review = ratingTextarea ? ratingTextarea.value.trim() : "";
+
+      if (rating === 0) {
+        alert("Please select a rating before submitting.");
+        return;
+      }
+
+      const submissionData = {
+        rating: rating,
+        review: review,
+      };
+
+      fetch("/api/submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "rating",
+          data: submissionData,
+        }),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.error) {
+            alert("Error submitting rating: " + result.error);
+          } else {
+            alert(
+              `Thank you for your ${rating}-star rating!${
+                review ? " Your review has been submitted." : ""
+              }`
+            );
+
+            stars.forEach((s) => s.classList.remove("active"));
+            if (ratingTextarea) ratingTextarea.value = "";
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Failed to submit rating. Please try again.");
+        });
+    });
+  }
+
+  if (ratingTextarea) {
+    ratingTextarea.addEventListener("input", () => {
+      console.log("Review text:", ratingTextarea.value);
+    });
+  }
+
+  const contactForm = document.querySelector(".contact-form");
+  if (contactForm) {
+    contactForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(contactForm);
+      const name = formData.get("name")?.trim();
+      const email = formData.get("email")?.trim();
+      const message = formData.get("message")?.trim();
+
+      if (!name || !email || !message) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      const submissionData = {
+        name: name,
+        email: email,
+        message: message,
+      };
+
+      fetch("/api/submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "query",
+          data: submissionData,
+        }),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.error) {
+            alert("Error submitting message: " + result.error);
+          } else {
+            alert("Thank you for your message! We will get back to you soon.");
+            contactForm.reset();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Failed to submit message. Please try again.");
+        });
+    });
+  }
 });

@@ -17,6 +17,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="styles/dashboard.css" />
+    <link rel="stylesheet" href="styles/responsive.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
   </head>
   <body>
@@ -161,7 +162,7 @@
               <i class="fas fa-download"></i> Export Data
             </button>
             <button class="action-btn">
-              <i class="fas fa-cog"></i> System Settings
+              <i class="fas fa-upload"></i> Import Books
             </button>
           </div>
         </section>
@@ -347,6 +348,12 @@
                 <input type="number" value="5" min="1" max="20" />
               </label>
             </div>
+            <div class="setting-group">
+              <h3>System Management</h3>
+              <button class="btn remove-all-books-btn">Remove All Books</button>
+              <button class="btn remove-all-users-btn">Remove All Users</button>
+              <button class="btn reset-webapp-btn">Reset Webapp</button>
+            </div>
             <button class="btn save-settings-btn">Save Settings</button>
           </div>
         </section>
@@ -499,6 +506,46 @@
             </select>
           </div>
           <button type="submit" class="btn apply-filter-btn">Apply</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="import-books-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Import Books</h3>
+        <form class="modal-form" id="import-books-form">
+          <div class="form-group">
+            <label for="books-file">Select Books File:</label>
+            <input
+              type="file"
+              id="books-file"
+              accept=".json,.csv,.txt"
+              required
+            />
+            <small>Supported formats: JSON, CSV, TXT</small>
+          </div>
+          <div class="import-preview" id="import-preview" style="display: none">
+            <h4>Preview:</h4>
+            <div id="preview-content"></div>
+          </div>
+          <button type="submit" class="btn submit-btn">Import Books</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="password-confirm-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Confirm Password</h3>
+        <form class="modal-form" id="password-confirm-form">
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Enter admin password"
+            required
+          />
+          <button type="submit" class="btn submit-btn">Confirm</button>
         </form>
       </div>
     </div>

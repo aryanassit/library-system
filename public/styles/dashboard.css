@@ -1,4 +1,5 @@
 :root {
+  --bg-dark: #0d1117;
   --dashboard-bg: #0d1117;
   --sidebar-bg: #161b22;
   --sidebar-hover: #21262d;
@@ -26,11 +27,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--dashboard-bg);
+  background: var(--bg-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #000000;
+  background: var(--border-color);
   border-radius: 3px;
 }
 
@@ -464,7 +465,7 @@ td {
 
 .action-btn-small:hover {
   background: var(--primary-accent);
-  color: var(--primary-accent);
+  color: var(--dashboard-bg);
 }
 
 .action-btn-small:focus {
@@ -591,6 +592,44 @@ td {
 .save-settings-btn:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.setting-group .remove-all-books-btn,
+.setting-group .remove-all-users-btn,
+.setting-group .reset-webapp-btn {
+  background: linear-gradient(135deg, var(--error), #ff6b6b);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 4px rgba(248, 81, 73, 0.2);
+}
+
+.setting-group .remove-all-books-btn:hover,
+.setting-group .remove-all-users-btn:hover,
+.setting-group .reset-webapp-btn:hover {
+  background: linear-gradient(135deg, #ff6b6b, var(--error));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(248, 81, 73, 0.3);
+}
+
+.setting-group .remove-all-books-btn:focus,
+.setting-group .remove-all-users-btn:focus,
+.setting-group .reset-webapp-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.4);
+}
+
+.setting-group .remove-all-books-btn:active,
+.setting-group .remove-all-users-btn:active,
+.setting-group .reset-webapp-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(248, 81, 73, 0.2);
 }
 
 .modal {

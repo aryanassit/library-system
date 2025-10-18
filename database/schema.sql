@@ -47,6 +47,8 @@ CREATE TABLE settings (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+
+
 -- Indexes for performance
 CREATE INDEX idx_books_title ON books(title);
 CREATE INDEX idx_books_author ON books(author);
@@ -61,15 +63,7 @@ CREATE INDEX idx_settings_key ON settings(key);
 
 -- Sample data inserts based on dashboard content
 
--- Insert sample books
-INSERT INTO books (title, author, isbn, genre, publication_year, description, status) VALUES
-('The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', 'Fiction', 1925, 'A classic American novel about the Jazz Age.', 'available'),
-('1984', 'George Orwell', '978-0-452-28423-4', 'Dystopian', 1949, 'A dystopian social science fiction novel.', 'borrowed');
 
--- Insert sample users
-INSERT INTO users (name, email, password_hash, verification_code, role, status) VALUES
-('John Doe', 'john.doe@example.com', '$2b$10$dummy.hash.for.demo', 'ABC123-XYZ', 'user', 'active'),
-('Jane Smith', 'jane.smith@example.com', '$2b$10$dummy.hash.for.demo', 'DEF456-UVW', 'admin', 'active');
 
 -- Insert sample activities (recent ones)
 INSERT INTO activities (description, user_id) VALUES

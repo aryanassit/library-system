@@ -61,54 +61,147 @@ function populateAllActivitiesModal() {
   });
 }
 
+function showNotification(message, type = "success") {
+  let notif = document.getElementById("custom-notification");
+  if (!notif) {
+    notif = document.createElement("div");
+    notif.id = "custom-notification";
+    notif.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === "error" ? "#e74c3c" : "#27ae60"};
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+      display: none;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    `;
+    document.body.appendChild(notif);
+  }
+  notif.textContent = message;
+  notif.style.display = "block";
+  setTimeout(() => (notif.style.display = "none"), 3000);
+}
+
+function showConfirm(message, callback) {
+  let modal = document.createElement("div");
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+  `;
+  modal.innerHTML = `
+    <div style="background: white; padding: 20px; border-radius: 5px; max-width: 400px; text-align: center;">
+      <p>${message}</p>
+      <button id="confirm-yes" style="margin: 10px; padding: 5px 10px; background: #27ae60; color: white; border: none; border-radius: 3px; cursor: pointer;">Yes</button>
+      <button id="confirm-no" style="margin: 10px; padding: 5px 10px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;">No</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  document.getElementById("confirm-yes").addEventListener("click", () => {
+    document.body.removeChild(modal);
+    callback(true);
+  });
+
+  document.getElementById("confirm-no").addEventListener("click", () => {
+    document.body.removeChild(modal);
+    callback(false);
+  });
+}
+
 function loadBooks() {
-  fetch("/api/books")
-    .then((response) => response.json())
-    .then((books) => {
-      const tbody = document.querySelector("#books-section tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      books.forEach((book) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${book.title}</td>
-          <td>${book.author}</td>
-          <td>${book.genre || "N/A"}</td>
-          <td>${book.status}</td>
-          <td>
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    })
-    .catch((error) => console.error("Error loading books:", error));
+  const books = JSON.parse(localStorage.getItem("books")) || [
+    {
+      id: 1,
+      title: "The Great Gatsby",
+      author: "F. Scott Fitzgerald",
+      genre: "Fiction",
+      status: "available",
+      isbn: "978-0-7432-7356-5",
+      publication_year: 1925,
+      description: "A classic novel about the American Dream.",
+    },
+    {
+      id: 2,
+      title: "1984",
+      author: "George Orwell",
+      genre: "Dystopian",
+      status: "borrowed",
+      isbn: "978-0-452-28423-4",
+      publication_year: 1949,
+      description: "A dystopian novel about totalitarianism.",
+    },
+  ];
+  const tbody = document.querySelector("#books-section tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  books.forEach((book) => {
+    const row = document.createElement("tr");
+    row.dataset.id = book.id;
+    row.innerHTML = `
+        <td>${book.title}</td>
+        <td>${book.author}</td>
+        <td>${book.genre || "N/A"}</td>
+        <td><span class="status ${book.status}">${book.status}</span></td>
+        <td>
+          <button class="action-btn-small edit-btn" data-id="${
+            book.id
+          }"><i class="fas fa-edit"></i></button>
+          <button class="action-btn-small delete-btn" data-id="${
+            book.id
+          }"><i class="fas fa-trash"></i></button>
+        </td>
+      `;
+    tbody.appendChild(row);
+  });
 }
 
 function loadUsers() {
-  fetch("/api/users")
-    .then((response) => response.json())
-    .then((users) => {
-      const tbody = document.querySelector("#users-section tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      users.forEach((user) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${user.role}</td>
-          <td>${user.status}</td>
-          <td>
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    })
-    .catch((error) => console.error("Error loading users:", error));
+  const users = JSON.parse(localStorage.getItem("users")) || [
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john.doe@example.com",
+      role: "user",
+      status: "active",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      email: "jane.smith@example.com",
+      role: "admin",
+      status: "active",
+    },
+  ];
+  const tbody = document.querySelector("#users-section tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  users.forEach((user) => {
+    const row = document.createElement("tr");
+    row.dataset.id = user.id;
+    row.innerHTML = `
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+      <td>${user.role}</td>
+      <td><span class="status ${user.status}">${user.status}</span></td>
+      <td>
+        <button class="action-btn-small edit-btn" data-id="${user.id}"><i class="fas fa-edit"></i></button>
+        <button class="action-btn-small delete-btn" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
 }
 
 function loadSettings() {
@@ -201,42 +294,31 @@ document.addEventListener("DOMContentLoaded", function () {
   loadActivities();
   loadBooks();
   loadUsers();
-  loadSettings();
 
   function updateStats() {
-    fetch("/api/books")
-      .then((response) => response.json())
-      .then((books) => {
-        const totalBooks = books.length;
-        const availableBooks = books.filter(
-          (book) => book.status === "available"
-        ).length;
-        const borrowedBooks = totalBooks - availableBooks;
+    const books = JSON.parse(localStorage.getItem("books")) || [];
+    const users = JSON.parse(localStorage.getItem("users")) || [];
 
-        fetch("/api/users")
-          .then((response) => response.json())
-          .then((users) => {
-            const totalUsers = users.length;
-            const activeUsers = users.filter(
-              (user) => user.status === "active"
-            ).length;
+    const totalBooks = books.length;
+    const availableBooks = books.filter(
+      (book) => book.status === "available"
+    ).length;
+    const borrowedBooks = books.filter(
+      (book) => book.status === "borrowed"
+    ).length;
+    const activeUsers = users.filter((user) => user.status === "active").length;
 
-            document.querySelectorAll(".stat-info h3")[0].textContent =
-              totalBooks.toLocaleString();
-            document.querySelectorAll(".stat-info h3")[1].textContent =
-              availableBooks.toLocaleString();
-            document.querySelectorAll(".stat-info h3")[2].textContent =
-              borrowedBooks.toLocaleString();
-            document.querySelectorAll(".stat-info h3")[3].textContent =
-              activeUsers.toLocaleString();
-          })
-          .catch((error) => console.error("Error loading user stats:", error));
-      })
-      .catch((error) => console.error("Error loading book stats:", error));
+    document.querySelectorAll(".stat-info h3")[0].textContent =
+      totalBooks.toLocaleString();
+    document.querySelectorAll(".stat-info h3")[1].textContent =
+      availableBooks.toLocaleString();
+    document.querySelectorAll(".stat-info h3")[2].textContent =
+      borrowedBooks.toLocaleString();
+    document.querySelectorAll(".stat-info h3")[3].textContent =
+      activeUsers.toLocaleString();
   }
 
   updateStats();
-  setInterval(updateStats, 30000);
 
   const actionButtons = document.querySelectorAll(".action-btn");
   actionButtons.forEach((button) => {
@@ -248,6 +330,8 @@ document.addEventListener("DOMContentLoaded", function () {
         openModal("add-user-modal");
       } else if (action.includes("Export Data")) {
         exportData();
+      } else if (action.includes("Import Books")) {
+        openModal("import-books-modal");
       } else if (action.includes("System Settings")) {
         navLinks.forEach((l) => l.parentElement.classList.remove("active"));
         document
@@ -299,21 +383,178 @@ document.addEventListener("DOMContentLoaded", function () {
       e.preventDefault();
       const formData = new FormData(this);
       const data = Object.fromEntries(formData);
+      const editId = data.id;
 
       if (this.closest("#add-book-modal")) {
-        addActivity(`New book added: ${data.title} by ${data.author}`);
-      } else if (this.closest("#add-user-modal")) {
-        addActivity(
-          `New user registered: ${data["Full Name"]} (${data.Email})`
-        );
-      }
+        let books = JSON.parse(localStorage.getItem("books")) || [];
+        if (editId) {
+          const index = books.findIndex((book) => book.id == editId);
+          if (index !== -1) {
+            books[index] = {
+              ...books[index],
+              title: data.title,
+              author: data.author,
+              isbn: data.isbn,
+              genre: data.genre,
+              publication_year: data.publicationYear,
+              description: data.description,
+            };
+          }
+        } else {
+          const newId = Math.max(...books.map((b) => b.id), 0) + 1;
+          books.push({
+            id: newId,
+            title: data.title,
+            author: data.author,
+            isbn: data.isbn,
+            genre: data.genre,
+            publication_year: data.publicationYear,
+            description: data.description,
+            status: "available",
+          });
+        }
+        localStorage.setItem("books", JSON.stringify(books));
 
-      alert("Form submitted successfully!\n" + JSON.stringify(data, null, 2));
+        const action = editId ? "updated" : "added";
+        addActivity(`Book ${action}: ${data.title} by ${data.author}`);
+        showNotification(`Book ${action} successfully!`);
+        loadBooks();
+        updateStats();
+      } else if (this.closest("#add-user-modal")) {
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        if (editId) {
+          const index = users.findIndex((user) => user.id == editId);
+          if (index !== -1) {
+            users[index] = {
+              ...users[index],
+              name: data["Full Name"],
+              email: data.Email,
+              role: data.Role,
+            };
+          }
+        } else {
+          const newId = Math.max(...users.map((u) => u.id), 0) + 1;
+          users.push({
+            id: newId,
+            name: data["Full Name"],
+            email: data.Email,
+            role: data.Role,
+            status: "active",
+          });
+        }
+        localStorage.setItem("users", JSON.stringify(users));
+
+        const action = editId ? "updated" : "registered";
+        addActivity(`User ${action}: ${data["Full Name"]} (${data.Email})`);
+        showNotification(`User ${action} successfully!`);
+        loadUsers();
+        updateStats();
+      } else if (this.closest("#import-books-modal")) {
+        const fileInput = document.getElementById("books-file");
+        const file = fileInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              let importedBooks = [];
+              const fileContent = e.target.result;
+              const fileExtension = file.name.split(".").pop().toLowerCase();
+
+              if (fileExtension === "json") {
+                importedBooks = JSON.parse(fileContent);
+                if (Array.isArray(importedBooks)) {
+                } else if (
+                  importedBooks.books &&
+                  Array.isArray(importedBooks.books)
+                ) {
+                  importedBooks = importedBooks.books;
+                } else {
+                  throw new Error(
+                    "Invalid JSON format. Expected an array of books or an object with a 'books' array."
+                  );
+                }
+              } else if (fileExtension === "csv") {
+                const lines = fileContent.split("\n");
+                const headers = lines[0]
+                  .split(",")
+                  .map((h) => h.trim().toLowerCase());
+                importedBooks = lines.slice(1).map((line) => {
+                  const values = line.split(",");
+                  const book = {};
+                  headers.forEach((header, index) => {
+                    book[header] = values[index] ? values[index].trim() : "";
+                  });
+                  return book;
+                });
+              } else if (fileExtension === "txt") {
+                importedBooks = fileContent
+                  .split("\n")
+                  .map((line) => {
+                    const parts = line.split("|");
+                    if (parts.length >= 2) {
+                      return {
+                        title: parts[0].trim(),
+                        author: parts[1].trim(),
+                        genre: parts[2] ? parts[2].trim() : "",
+                        isbn: parts[3] ? parts[3].trim() : "",
+                        publication_year: parts[4]
+                          ? parseInt(parts[4].trim())
+                          : null,
+                        description: parts[5] ? parts[5].trim() : "",
+                      };
+                    }
+                    return null;
+                  })
+                  .filter((book) => book !== null);
+              } else {
+                throw new Error(
+                  "Unsupported file format. Please use JSON, CSV, or TXT files."
+                );
+              }
+
+              let books = JSON.parse(localStorage.getItem("books")) || [];
+              let addedCount = 0;
+              importedBooks.forEach((bookData) => {
+                if (bookData.title && bookData.author) {
+                  const newId = Math.max(...books.map((b) => b.id), 0) + 1;
+                  const book = {
+                    id: newId,
+                    title: bookData.title,
+                    author: bookData.author,
+                    genre: bookData.genre || "",
+                    isbn: bookData.isbn || "",
+                    publication_year: bookData.publication_year || null,
+                    description: bookData.description || "",
+                    status: "available",
+                  };
+                  books.push(book);
+                  addedCount++;
+                }
+              });
+
+              localStorage.setItem("books", JSON.stringify(books));
+              addActivity(`Imported ${addedCount} books from file`);
+              showNotification(`Successfully imported ${addedCount} books!`);
+              loadBooks();
+              updateStats();
+            } catch (error) {
+              showNotification(
+                `Error importing books: ${error.message}`,
+                "error"
+              );
+            }
+          };
+          reader.readAsText(file);
+        }
+      }
 
       const modal = this.closest(".modal");
       if (modal) modal.style.display = "none";
 
       this.reset();
+
+      const editIdInput = this.querySelector("#edit-id");
+      if (editIdInput) editIdInput.remove();
     });
   });
 
@@ -337,24 +578,123 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  document.querySelectorAll(".edit-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const row = this.closest("tr");
-      const title = row.cells[0].textContent;
-      alert(`Edit functionality for "${title}" would open an edit modal.`);
-    });
-  });
+  document
+    .querySelector("#books-section tbody")
+    .addEventListener("click", function (e) {
+      const btn = e.target.closest(".edit-btn, .delete-btn");
+      if (!btn) return;
 
-  document.querySelectorAll(".delete-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const row = this.closest("tr");
-      const title = row.cells[0].textContent;
-      if (confirm(`Are you sure you want to delete "${title}"?`)) {
-        row.remove();
-        alert("Item deleted successfully!");
+      const row = btn.closest("tr");
+      const id = btn.dataset.id;
+      const isBook = true;
+
+      if (btn.classList.contains("edit-btn")) {
+        const modalId = "add-book-modal";
+        const storageKey = "books";
+        const items = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const item = items.find((item) => item.id == id);
+
+        if (item) {
+          const modal = document.getElementById(modalId);
+          if (modal) {
+            modal.querySelector('[name="title"]').value = item.title || "";
+            modal.querySelector('[name="author"]').value = item.author || "";
+            modal.querySelector('[name="isbn"]').value = item.isbn || "";
+            modal.querySelector('[name="genre"]').value = item.genre || "";
+            modal.querySelector('[name="publicationYear"]').value =
+              item.publication_year || "";
+            modal.querySelector('[name="description"]').value =
+              item.description || "";
+            let editIdInput = modal.querySelector("#edit-id");
+            if (!editIdInput) {
+              editIdInput = document.createElement("input");
+              editIdInput.type = "hidden";
+              editIdInput.id = "edit-id";
+              editIdInput.name = "id";
+              modal.querySelector(".modal-form").appendChild(editIdInput);
+            }
+            editIdInput.value = id;
+            modal.style.display = "block";
+          }
+        } else {
+          alert("Item not found");
+        }
+      } else if (btn.classList.contains("delete-btn")) {
+        const title = row.cells[0].textContent;
+        showConfirm(
+          `Are you sure you want to delete "${title}"?`,
+          (confirmed) => {
+            if (confirmed) {
+              const storageKey = "books";
+              let items = JSON.parse(localStorage.getItem(storageKey)) || [];
+              items = items.filter((item) => item.id != id);
+              localStorage.setItem(storageKey, JSON.stringify(items));
+              row.remove();
+              showNotification("Item deleted successfully!");
+              loadBooks();
+              updateStats();
+            }
+          }
+        );
       }
     });
-  });
+
+  document
+    .querySelector("#users-section tbody")
+    .addEventListener("click", function (e) {
+      const btn = e.target.closest(".edit-btn, .delete-btn");
+      if (!btn) return;
+
+      const row = btn.closest("tr");
+      const id = btn.dataset.id;
+      const isBook = false;
+
+      if (btn.classList.contains("edit-btn")) {
+        const modalId = "add-user-modal";
+        const storageKey = "users";
+        const items = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const item = items.find((item) => item.id == id);
+
+        if (item) {
+          const modal = document.getElementById(modalId);
+          if (modal) {
+            modal.querySelector('[name="Full Name"]').value = item.name || "";
+            modal.querySelector('[name="Email"]').value = item.email || "";
+            modal.querySelector('[name="Password"]').value = "";
+            modal.querySelector('[name="Role"]').value = item.role || "";
+            let editIdInput = modal.querySelector("#edit-id");
+            if (!editIdInput) {
+              editIdInput = document.createElement("input");
+              editIdInput.type = "hidden";
+              editIdInput.id = "edit-id";
+              editIdInput.name = "id";
+              modal.querySelector(".modal-form").appendChild(editIdInput);
+            }
+            editIdInput.value = id;
+            modal.style.display = "block";
+          }
+        } else {
+          alert("Item not found");
+        }
+      } else if (btn.classList.contains("delete-btn")) {
+        const title = row.cells[0].textContent;
+        showConfirm(
+          `Are you sure you want to delete "${title}"?`,
+          (confirmed) => {
+            if (confirmed) {
+              const storageKey = "users";
+              let items = JSON.parse(localStorage.getItem(storageKey)) || [];
+              items = items.filter((item) => item.id != id);
+              localStorage.setItem(storageKey, JSON.stringify(items));
+              row.remove();
+              showNotification("Item deleted successfully!");
+              loadUsers();
+              updateStats();
+            }
+          }
+        );
+      }
+    });
 
   document.querySelectorAll(".search-input").forEach((input) => {
     input.addEventListener("input", function () {
@@ -512,19 +852,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function exportData() {
+    const books = JSON.parse(localStorage.getItem("books")) || [];
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
     const data = {
-      books: [
-        {
-          title: "The Great Gatsby",
-          author: "F. Scott Fitzgerald",
-          status: "Available",
-        },
-        { title: "1984", author: "George Orwell", status: "Borrowed" },
-      ],
-      users: [
-        { name: "John Doe", email: "john.doe@example.com", role: "User" },
-        { name: "Jane Smith", email: "jane.smith@example.com", role: "Admin" },
-      ],
+      books: books.map((book) => ({
+        title: book.title,
+        author: book.author,
+        status: book.status,
+        genre: book.genre,
+        isbn: book.isbn,
+        publication_year: book.publication_year,
+        description: book.description,
+      })),
+      users: users.map((user) => ({
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      })),
     };
 
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -559,6 +905,76 @@ document.addEventListener("DOMContentLoaded", function () {
       alert(`Activity Details: ${details}`);
     });
   });
+
+  let currentAction = null;
+
+  const removeAllBooksBtn = document.querySelector(".remove-all-books-btn");
+  const removeAllUsersBtn = document.querySelector(".remove-all-users-btn");
+  const resetWebappBtn = document.querySelector(".reset-webapp-btn");
+
+  if (removeAllBooksBtn) {
+    removeAllBooksBtn.addEventListener("click", function () {
+      currentAction = "removeBooks";
+      openModal("password-confirm-modal");
+    });
+  }
+
+  if (removeAllUsersBtn) {
+    removeAllUsersBtn.addEventListener("click", function () {
+      currentAction = "removeUsers";
+      openModal("password-confirm-modal");
+    });
+  }
+
+  if (resetWebappBtn) {
+    resetWebappBtn.addEventListener("click", function () {
+      currentAction = "resetWebapp";
+      openModal("password-confirm-modal");
+    });
+  }
+
+  const passwordConfirmForm = document.getElementById("password-confirm-form");
+  if (passwordConfirmForm) {
+    passwordConfirmForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const password = document.getElementById("confirm-password").value;
+      if (password === "admin") {
+        performAction(currentAction);
+        closeModal("password-confirm-modal");
+        document.getElementById("confirm-password").value = "";
+      } else {
+        showNotification("Incorrect password", "error");
+      }
+    });
+  }
+
+  function performAction(action) {
+    switch (action) {
+      case "removeBooks":
+        localStorage.removeItem("books");
+        loadBooks();
+        updateStats();
+        addActivity("system", "All books removed");
+        showNotification("All books removed successfully");
+        break;
+      case "removeUsers":
+        localStorage.removeItem("users");
+        loadUsers();
+        updateStats();
+        addActivity("system", "All users removed");
+        showNotification("All users removed successfully");
+        break;
+      case "resetWebapp":
+        localStorage.clear();
+        loadBooks();
+        loadUsers();
+        updateStats();
+        loadActivities();
+        addActivity("system", "Webapp reset");
+        showNotification("Webapp reset successfully");
+        break;
+    }
+  }
 
   window.addEventListener("resize", function () {
     if (window.innerWidth <= 768) {

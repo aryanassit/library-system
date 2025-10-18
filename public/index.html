@@ -229,6 +229,22 @@
                   ><i class="fa-brands fa-github"></i
                 ></a>
               </div>
+              <div class="rating-section">
+                <div class="rating-header">
+                  <h4>Rate Us</h4>
+                  <div class="stars">
+                    <i class="fas fa-star" data-rating="1"></i>
+                    <i class="fas fa-star" data-rating="2"></i>
+                    <i class="fas fa-star" data-rating="3"></i>
+                    <i class="fas fa-star" data-rating="4"></i>
+                    <i class="fas fa-star" data-rating="5"></i>
+                  </div>
+                  <button type="button" class="rating-submit-btn">
+                    Submit Rating
+                  </button>
+                </div>
+                <textarea placeholder="Leave a review..." rows="3"></textarea>
+              </div>
             </div>
             <form class="contact-form">
               <input type="text" placeholder="Your Name" required />
@@ -602,5 +618,95 @@
       </div>
     </div>
     <script src="scripts/app.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const ratingStars = document.querySelectorAll(".stars i");
+        const ratingSubmitBtn = document.querySelector(".rating-submit-btn");
+        const ratingTextarea = document.querySelector(
+          ".rating-section textarea"
+        );
+        let selectedRating = 0;
+
+        ratingStars.forEach((star) => {
+          star.addEventListener("click", () => {
+            selectedRating = star.dataset.rating;
+            ratingStars.forEach((s) => {
+              if (s.dataset.rating <= selectedRating) {
+                s.classList.add("selected");
+              } else {
+                s.classList.remove("selected");
+              }
+            });
+          });
+        });
+
+        ratingSubmitBtn.addEventListener("click", () => {
+          const message = ratingTextarea.value.trim();
+          const user = "Anonymous"; // You can replace this with the actual username if the user is logged in
+
+          fetch("/api/submissions/rating", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ stars: selectedRating, message, user }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.message) {
+                alert("Thank you for your rating!");
+                ratingTextarea.value = "";
+                ratingStars.forEach((s) => s.classList.remove("selected"));
+                selectedRating = 0;
+              } else {
+                alert(
+                  "There was an error submitting your rating. Please try again."
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert(
+                "There was an error submitting your rating. Please try again."
+              );
+            });
+        });
+
+        const contactForm = document.querySelector(".contact-form");
+        contactForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const name = contactForm.querySelector('input[type="text"]').value;
+          const email = contactForm.querySelector('input[type="email"]').value;
+          const message = contactForm.querySelector("textarea").value;
+
+          fetch("/api/submissions/contact", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email, message }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.message) {
+                alert(
+                  "Thank you for your message! We will get back to you soon."
+                );
+                contactForm.reset();
+              } else {
+                alert(
+                  "There was an error sending your message. Please try again."
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert(
+                "There was an error sending your message. Please try again."
+              );
+            });
+        });
+      });
+    </script>
   </body>
 </html>

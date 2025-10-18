@@ -1,0 +1,805 @@
+@media (max-width: 575.98px) {
+  .sidebar {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: auto;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 0.5rem;
+    margin-top: 60px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.2rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 0.75rem;
+    margin: 0.25rem 0;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .stat-info h3 {
+    font-size: 1.2rem;
+  }
+
+  .stat-info p {
+    font-size: 0.8rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .action-btn {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .recent-activity {
+    margin-bottom: 1rem;
+  }
+
+  .activity-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .activity-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .activity-list .activity-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  .activity-icon {
+    margin-right: 0;
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+
+  .activity-details p {
+    font-size: 0.8rem;
+  }
+
+  .activity-details span {
+    font-size: 0.7rem;
+  }
+
+  .content-section {
+    margin-bottom: 1rem;
+  }
+
+  .content-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-controls {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: stretch;
+    margin-bottom: 0.75rem;
+  }
+
+  .search-input {
+    max-width: none;
+    width: 100%;
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .books-table,
+  .users-table {
+    overflow-x: auto;
+    margin: 0.5rem 0;
+  }
+
+  table {
+    min-width: 600px;
+    font-size: 0.75rem;
+  }
+
+  th,
+  td {
+    padding: 0.3rem;
+  }
+
+  .reports-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .report-card {
+    padding: 0.75rem;
+    margin: 0.25rem 0;
+  }
+
+  .report-card h3 {
+    font-size: 1rem;
+  }
+
+  .report-card p {
+    font-size: 0.8rem;
+  }
+
+  .generate-report-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .settings-form {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+  }
+
+  .setting-group {
+    margin-bottom: 1rem;
+  }
+
+  .setting-group h3 {
+    font-size: 1.1rem;
+  }
+
+  .modal-content {
+    margin: 5% auto;
+    width: 95%;
+    padding: 0.75rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.2rem;
+  }
+
+  .modal-form {
+    gap: 0.5rem;
+  }
+
+  .modal-form input,
+  .modal-form select,
+  .modal-form textarea {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .submit-btn,
+  .save-settings-btn {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .notifications-list,
+  .all-activities-list {
+    max-height: 250px;
+  }
+
+  .notification-item,
+  .activity-item {
+    padding: 0.5rem;
+  }
+
+  .notification-item p,
+  .activity-item p {
+    font-size: 0.8rem;
+  }
+
+  .notification-item span,
+  .activity-item span {
+    font-size: 0.7rem;
+  }
+
+  .dropdown-menu {
+    min-width: 120px;
+  }
+
+  .sidebar-header .logo svg {
+    width: 80px;
+    height: 24px;
+  }
+
+  .sidebar-nav a {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .sidebar-footer {
+    padding: 0.75rem;
+  }
+
+  .logout-btn {
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .sidebar {
+    width: 280px;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.4rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+  }
+
+  .stat-info h3 {
+    font-size: 1.4rem;
+  }
+
+  .stat-info p {
+    font-size: 0.85rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .activity-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .content-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .section-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .search-input {
+    max-width: 200px;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  th,
+  td {
+    padding: 0.4rem;
+  }
+
+  .reports-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .report-card {
+    padding: 1rem;
+  }
+
+  .report-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .report-card p {
+    font-size: 0.85rem;
+  }
+
+  .generate-report-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .settings-form {
+    padding: 1rem;
+  }
+
+  .setting-group h3 {
+    font-size: 1.1rem;
+  }
+
+  .modal-content {
+    width: 90%;
+    max-width: 400px;
+    padding: 1rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.3rem;
+  }
+
+  .modal-form input,
+  .modal-form select,
+  .modal-form textarea {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .submit-btn,
+  .save-settings-btn {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .notifications-list,
+  .all-activities-list {
+    max-height: 300px;
+  }
+
+  .sidebar-nav a {
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .sidebar {
+    width: 300px;
+  }
+
+  .main-content {
+    margin-left: 300px;
+    padding: 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+
+  .stat-icon {
+    width: 55px;
+    height: 55px;
+    font-size: 1.3rem;
+  }
+
+  .stat-info h3 {
+    font-size: 1.6rem;
+  }
+
+  .stat-info p {
+    font-size: 0.9rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .action-btn {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .activity-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .content-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .section-controls {
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .search-input {
+    max-width: 250px;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+
+  .reports-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .report-card {
+    padding: 1.25rem;
+  }
+
+  .report-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .report-card p {
+    font-size: 0.9rem;
+  }
+
+  .generate-report-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .settings-form {
+    padding: 1.5rem;
+  }
+
+  .setting-group h3 {
+    font-size: 1.2rem;
+  }
+
+  .modal-content {
+    width: 80%;
+    max-width: 550px;
+    padding: 1.5rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.4rem;
+  }
+
+  .modal-form input,
+  .modal-form select,
+  .modal-form textarea {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .submit-btn,
+  .save-settings-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .notifications-list,
+  .all-activities-list {
+    max-height: 350px;
+  }
+
+  .sidebar-nav a {
+    padding: 0.9rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .sidebar {
+    width: 280px;
+  }
+
+  .main-content {
+    margin-left: 280px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .stat-info h3 {
+    font-size: 1.8rem;
+  }
+
+  .stat-info p {
+    font-size: 0.95rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .action-btn {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .activity-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .content-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .search-input {
+    max-width: 300px;
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  th,
+  td {
+    padding: 0.6rem;
+  }
+
+  .reports-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .report-card {
+    padding: 1.5rem;
+  }
+
+  .report-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .report-card p {
+    font-size: 0.95rem;
+  }
+
+  .generate-report-btn {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.95rem;
+  }
+
+  .settings-form {
+    padding: 2rem;
+  }
+
+  .setting-group h3 {
+    font-size: 1.25rem;
+  }
+
+  .modal-content {
+    width: 70%;
+    max-width: 650px;
+    padding: 2rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.5rem;
+  }
+
+  .modal-form input,
+  .modal-form select,
+  .modal-form textarea {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .submit-btn,
+  .save-settings-btn {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .notifications-list,
+  .all-activities-list {
+    max-height: 400px;
+  }
+
+  .sidebar-nav a {
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .sidebar {
+    width: 320px;
+  }
+
+  .main-content {
+    margin-left: 320px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .reports-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .modal-content {
+    width: 60%;
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .main-content {
+    max-width: 1600px;
+    margin: 0 auto;
+    margin-left: 320px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+
+  .stat-card {
+    padding: 2rem;
+  }
+
+  .stat-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 1.75rem;
+  }
+
+  .stat-info h3 {
+    font-size: 2.5rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .action-btn {
+    padding: 1.25rem;
+    font-size: 1rem;
+  }
+
+  .reports-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+
+  .report-card {
+    padding: 2rem;
+  }
+
+  .modal-content {
+    width: 50%;
+    max-width: 900px;
+  }
+}
+
+@media print {
+  .sidebar,
+  .header-actions,
+  .action-btn,
+  .modal {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 0;
+  }
+
+  .content-section {
+    page-break-before: always;
+  }
+
+  .books-table,
+  .users-table {
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid #000;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --bg-dark: #000000;
+    --sidebar-bg: #000000;
+    --card-bg: #000000;
+    --border-color: #ffffff;
+    --text-main: #ffffff;
+    --text-muted: #cccccc;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+}
+
+@media screen and (orientation: portrait) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media screen and (orientation: landscape) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}

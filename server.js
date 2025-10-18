@@ -12,12 +12,15 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const db = require("./database/db");
+const submissionsDb = require("./database/submissions_db");
 
 app.use("/api/books", require("./routes/books"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/activities", require("./routes/activities"));
 app.use("/api/settings", require("./routes/settings"));
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/submissions", require("./routes/submissions"));
+app.use("/api/submissions", require("./routes/submissions"));
 
 app.get("/api/health", (req, res) => {
   res.json({
