@@ -1,4 +1,34 @@
 document.addEventListener("DOMContentLoaded", function () {
+  checkLoginStatus();
+
+  const logoutDropdown = document.querySelector(".logout-dropdown");
+  const goToLibraryBtn = document.querySelector(".go-to-library-btn");
+  const profileBtn = document.querySelector(".profile-btn");
+  const dropdownMenu = document.querySelector(".dropdown-menu");
+
+  if (logoutDropdown) {
+    logoutDropdown.addEventListener("click", handleLogout);
+  }
+
+  if (goToLibraryBtn) {
+    goToLibraryBtn.addEventListener("click", handleGoToLibrary);
+  }
+
+  if (profileBtn && dropdownMenu) {
+    profileBtn.addEventListener("click", () => {
+      dropdownMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (event) => {
+      if (
+        !profileBtn.contains(event.target) &&
+        !dropdownMenu.contains(event.target)
+      ) {
+        dropdownMenu.classList.remove("show");
+      }
+    });
+  }
+
   const menuToggle = document.querySelector(".menu-toggle");
   const navLinks = document.querySelector(".nav-links");
   menuToggle.addEventListener("click", () => {
@@ -371,6 +401,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 modal.style.display = "none";
                 form.reset();
                 generatedCode = null;
+
+                localStorage.setItem("userEmail", data.email);
+                localStorage.setItem("userName", data.name);
+                checkLoginStatus();
               }
             })
             .catch((error) => {
@@ -404,7 +438,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 modal.style.display = "none";
                 form.reset();
 
-                window.location.href = "dashboard.html";
+                localStorage.setItem("userEmail", data.email);
+
+                checkLoginStatus();
               }
             })
             .catch((error) => {
@@ -480,136 +516,226 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  const stars = document.querySelectorAll(".stars i");
-  const ratingTextarea = document.querySelector(".rating-section textarea");
+  const stars = document.querySelectorAll(".rating-section .stars .fa-star");
   const ratingSubmitBtn = document.querySelector(".rating-submit-btn");
+  const ratingTextarea = document.querySelector(".rating-section textarea");
+  let selectedRating = 0;
 
   stars.forEach((star, index) => {
     star.addEventListener("click", () => {
-      stars.forEach((s) => s.classList.remove("active"));
-
-      for (let i = 0; i <= index; i++) {
-        stars[i].classList.add("active");
-      }
-    });
-
-    star.addEventListener("mouseover", () => {
-      for (let i = 0; i <= index; i++) {
-        stars[i].classList.add("active");
-      }
-    });
-
-    star.addEventListener("mouseout", () => {
-      const activeStars = document.querySelectorAll(".stars i.active");
-      stars.forEach((s) => s.classList.remove("active"));
-      activeStars.forEach((s) => s.classList.add("active"));
+      selectedRating = index + 1;
+      updateStars(selectedRating);
     });
   });
 
-  if (ratingSubmitBtn) {
-    ratingSubmitBtn.addEventListener("click", () => {
-      const activeStars = document.querySelectorAll(".stars i.active");
-      const rating = activeStars.length;
-      const review = ratingTextarea ? ratingTextarea.value.trim() : "";
+  function updateStars(rating) {
+    stars.forEach((star, index) => {
+      if (index < rating) {
+        star.classList.add("active");
+      } else {
+        star.classList.remove("active");
+      }
+    });
+  }
 
-      if (rating === 0) {
-        alert("Please select a rating before submitting.");
+  if (ratingSubmitBtn) {
+    ratingSubmitBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (selectedRating === 0) {
+        alert("Please select a rating.");
         return;
       }
+      const message =
+        ratingTextarea.value.trim() || `${selectedRating} star rating`;
 
-      const submissionData = {
-        rating: rating,
-        review: review,
-      };
+      const userEmail = localStorage.getItem("userEmail");
+      const userName = localStorage.getItem("userName") || "User";
 
-      fetch("/api/submissions", {
+      ratingSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      ratingSubmitBtn.disabled = true;
+
+      fetch("/api/submissions/rating", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          type: "rating",
-          data: submissionData,
+          stars: selectedRating,
+          message: message,
+          user: userName,
+          email: userEmail,
         }),
       })
         .then((response) => response.json())
         .then((result) => {
           if (result.error) {
             alert("Error submitting rating: " + result.error);
+            ratingSubmitBtn.innerHTML = "Submit Rating";
+            ratingSubmitBtn.disabled = false;
           } else {
-            alert(
-              `Thank you for your ${rating}-star rating!${
-                review ? " Your review has been submitted." : ""
-              }`
-            );
-
-            stars.forEach((s) => s.classList.remove("active"));
-            if (ratingTextarea) ratingTextarea.value = "";
+            ratingSubmitBtn.innerHTML = '<i class="fas fa-check"></i> Sent';
+            ratingSubmitBtn.style.backgroundColor = "var(--success)";
+            setTimeout(() => {
+              ratingSubmitBtn.innerHTML = "Submit Rating";
+              ratingSubmitBtn.style.backgroundColor = "";
+              ratingSubmitBtn.disabled = false;
+              selectedRating = 0;
+              updateStars(0);
+              ratingTextarea.value = "";
+            }, 2000);
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
+          console.error("Rating submission error:", error);
           alert("Failed to submit rating. Please try again.");
+          ratingSubmitBtn.innerHTML = "Submit Rating";
+          ratingSubmitBtn.disabled = false;
         });
     });
   }
 
-  if (ratingTextarea) {
-    ratingTextarea.addEventListener("input", () => {
-      console.log("Review text:", ratingTextarea.value);
+  const contactForm = document.querySelector(".contact-form");
+  const contactSubmitBtn = contactForm.querySelector(".submit-btn");
+  const nameInput = contactForm.querySelector('input[placeholder="Your Name"]');
+  const emailInput = contactForm.querySelector(
+    'input[placeholder="Your Email"]'
+  );
+
+  if (nameInput) {
+    nameInput.addEventListener("focus", () => {
+      const userName = localStorage.getItem("userName");
+      if (userName && !nameInput.value.trim()) {
+        nameInput.value = userName;
+      }
     });
   }
 
-  const contactForm = document.querySelector(".contact-form");
-  if (contactForm) {
-    contactForm.addEventListener("submit", (event) => {
+  if (emailInput) {
+    emailInput.addEventListener("focus", () => {
+      const userEmail = localStorage.getItem("userEmail");
+      if (userEmail && !emailInput.value.trim()) {
+        emailInput.value = userEmail;
+      }
+    });
+  }
+
+  if (contactSubmitBtn) {
+    contactSubmitBtn.addEventListener("click", (event) => {
       event.preventDefault();
+      const messageTextarea = contactForm.querySelector(
+        'textarea[placeholder="Your Message"]'
+      );
 
-      const formData = new FormData(contactForm);
-      const name = formData.get("name")?.trim();
-      const email = formData.get("email")?.trim();
-      const message = formData.get("message")?.trim();
+      const userName = localStorage.getItem("userName");
+      const userEmail = localStorage.getItem("userEmail");
+      const name = userName || nameInput.value.trim();
+      const email = userEmail || emailInput.value.trim();
+      const message = messageTextarea.value.trim();
 
-      if (!name || !email || !message) {
-        alert("Please fill in all required fields.");
+      if (!name) {
+        alert("Please enter your name.");
         return;
       }
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        alert("Please enter a valid email address.");
+      const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      if (!gmailRegex.test(email)) {
+        alert("Please enter a valid Gmail address (e.g., example@gmail.com).");
         return;
       }
 
-      const submissionData = {
-        name: name,
-        email: email,
-        message: message,
-      };
+      if (!message) {
+        alert("Please enter your message.");
+        return;
+      }
 
-      fetch("/api/submissions", {
+      contactSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      contactSubmitBtn.disabled = true;
+
+      fetch("/api/submissions/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          type: "query",
-          data: submissionData,
+          name: name,
+          email: email,
+          message: message,
         }),
       })
         .then((response) => response.json())
         .then((result) => {
           if (result.error) {
-            alert("Error submitting message: " + result.error);
+            alert("Error submitting contact form: " + result.error);
+            contactSubmitBtn.innerHTML = "Send Message";
+            contactSubmitBtn.disabled = false;
           } else {
-            alert("Thank you for your message! We will get back to you soon.");
-            contactForm.reset();
+            contactSubmitBtn.innerHTML = '<i class="fas fa-check"></i> Sent';
+            contactSubmitBtn.style.backgroundColor = "var(--success)";
+            setTimeout(() => {
+              contactSubmitBtn.innerHTML = "Send Message";
+              contactSubmitBtn.style.backgroundColor = "";
+              contactSubmitBtn.disabled = false;
+              contactForm.reset();
+            }, 2000);
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
-          alert("Failed to submit message. Please try again.");
+          console.error("Contact form submission error:", error);
+          alert("Failed to send message. Please try again.");
+          contactSubmitBtn.innerHTML = "Send Message";
+          contactSubmitBtn.disabled = false;
         });
     });
+  }
+
+  function checkLoginStatus() {
+    const userEmail = localStorage.getItem("userEmail");
+    const loginBtn = document.querySelector(".login-btn");
+    const signupBtn = document.querySelector(".signup-btn");
+    const profileDropdown = document.querySelector(".profile-dropdown");
+    const goToLibraryBtn = document.querySelector(".go-to-library-btn");
+    const profilePic = document.querySelector(".profile-pic");
+
+    if (userEmail) {
+      if (loginBtn) loginBtn.style.display = "none";
+      if (signupBtn) signupBtn.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "inline-block";
+      if (goToLibraryBtn) goToLibraryBtn.style.display = "inline-block";
+
+      if (profilePic) {
+        const initial = userEmail.charAt(0).toUpperCase();
+        profilePic.src = `https://via.placeholder.com/32x32/58a6ff/ffffff?text=${initial}`;
+      }
+      updateHeroButton(true);
+    } else {
+      if (loginBtn) loginBtn.style.display = "inline-block";
+      if (signupBtn) signupBtn.style.display = "inline-block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+      if (goToLibraryBtn) goToLibraryBtn.style.display = "none";
+      updateHeroButton(false);
+    }
+  }
+
+  function updateHeroButton(isLoggedIn) {
+    const heroBtn = document.querySelector(".explore-btn");
+    if (heroBtn) {
+      if (isLoggedIn) {
+        heroBtn.textContent = "Open Library";
+        heroBtn.href = "dashboard.html";
+      } else {
+        heroBtn.textContent = "Explore Features";
+        heroBtn.href = "#features";
+      }
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("userEmail");
+    checkLoginStatus();
+    window.location.href = "index.html";
+  }
+
+  function handleGoToLibrary() {
+    window.location.href = "dashboard.html";
   }
 });
