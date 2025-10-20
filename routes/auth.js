@@ -4,10 +4,14 @@ const router = express.Router();
 const db = require("../database/db");
 
 router.post("/register", async (req, res) => {
-  const { name, email, password, verificationCode } = req.body;
+  const { name, email, password, confirmPassword, verificationCode } = req.body;
 
-  if (!name || !email || !password || !verificationCode) {
+  if (!name || !email || !password || !confirmPassword || !verificationCode) {
     return res.status(400).json({ error: "All fields are required" });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ error: "Passwords do not match" });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -104,6 +108,23 @@ router.post("/login", async (req, res) => {
     console.error("Error during login:", error);
     res.status(500).json({ error: "Failed to login" });
   }
+});
+
+router.post("/check-user", (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  db.get("SELECT id FROM users WHERE email = ?", [email], (err, row) => {
+    if (err) {
+      console.error("Error checking user:", err);
+      return res.status(500).json({ error: "Failed to check user" });
+    }
+
+    res.json({ exists: !!row });
+  });
 });
 
 module.exports = router;

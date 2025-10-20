@@ -257,14 +257,18 @@
                   <button type="button" class="rating-submit-btn">
                     Submit Rating
                   </button>
+                  <span class="error-message" id="rating-error"></span>
                 </div>
                 <textarea placeholder="Leave a review..." rows="3"></textarea>
               </div>
             </div>
             <form class="contact-form">
               <input type="text" placeholder="Your Name" required />
+              <span class="error-message" id="contact-name-error"></span>
               <input type="email" placeholder="Your Email" required />
+              <span class="error-message" id="contact-email-error"></span>
               <textarea placeholder="Your Message" rows="5" required></textarea>
+              <span class="error-message" id="contact-message-error"></span>
               <button type="submit" class="btn submit-btn">Send Message</button>
             </form>
           </div>
@@ -550,7 +554,7 @@
                 <input
                   type="text"
                   name="verificationCode"
-                  placeholder="Verification Code (e.g., ABC123-XYZ)"
+                  placeholder="Verification Code (e.g., ADM123-XYZ or USR123-XYZ)"
                   required
                 />
                 <span class="error-message" id="login-code-error"></span>
@@ -572,6 +576,7 @@
                 />
                 <span class="error-message" id="username-error"></span>
                 <input type="email" name="email" placeholder="Email" required />
+                <span class="error-message" id="email-error"></span>
                 <input
                   type="password"
                   name="password"
@@ -581,34 +586,45 @@
                 <span class="error-message" id="password-error"></span>
                 <input
                   type="password"
+                  name="confirmPassword"
                   placeholder="Confirm Password"
                   required
                 />
                 <span class="error-message" id="confirm-password-error"></span>
+                <div class="role-selection">
+                  <label>Select Role:</label>
+                  <input type="radio" id="register-user" name="role" value="user" checked />
+                  <label for="register-user">User</label>
+                  <input type="radio" id="register-admin" name="role" value="admin" />
+                  <label for="register-admin">Admin</label>
+                </div>
                 <div class="payment-section">
                   <h4>Payment for Verification Code - $5.99</h4>
                   <input
                     type="text"
+                    name="cardNumber"
                     placeholder="Card Number (16 digits)"
                     required
                   />
                   <span class="error-message" id="card-number-error"></span>
                   <input
                     type="text"
+                    name="expiry"
                     placeholder="Expiry Date (MM/YY)"
                     required
                   />
                   <span class="error-message" id="expiry-error"></span>
-                  <input type="text" placeholder="CVV (3 digits)" required />
+                  <input type="text" name="cvv" placeholder="CVV (3 digits)" required />
                   <span class="error-message" id="cvv-error"></span>
                   <button type="button" class="pay-btn">
                     Pay and Get Code
                   </button>
+                  <span id="countdown-timer" style="display: block; visibility: hidden; text-align: center; font-size: 12px; color: var(--text-muted); height: 20px;position: relative;top: -5px;"></span>
                 </div>
                 <input
                   type="text"
                   name="verificationCode"
-                  placeholder="Verification Code (e.g., ABC123-XYZ)"
+                  placeholder="Verification Code (e.g., ADM123-XYZ or USR123-XYZ)"
                   required
                 />
                 <span class="error-message" id="register-code-error"></span>

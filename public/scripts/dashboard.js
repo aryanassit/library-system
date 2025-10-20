@@ -617,7 +617,7 @@ document.addEventListener("DOMContentLoaded", function () {
             modal.style.display = "block";
           }
         } else {
-          alert("Item not found");
+          showNotification("Item not found", "error");
         }
       } else if (btn.classList.contains("delete-btn")) {
         const title = row.cells[0].textContent;
@@ -674,7 +674,7 @@ document.addEventListener("DOMContentLoaded", function () {
             modal.style.display = "block";
           }
         } else {
-          alert("Item not found");
+          showNotification("Item not found", "error");
         }
       } else if (btn.classList.contains("delete-btn")) {
         const title = row.cells[0].textContent;
@@ -826,9 +826,7 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", function () {
       const reportType =
         this.closest(".report-card").querySelector("h3").textContent;
-      alert(
-        `Generating ${reportType} report...\n\nThis would create and download a report file.`
-      );
+      showNotification(`Generating ${reportType} report...`, "success");
     });
   });
 
@@ -845,9 +843,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .value,
       };
 
-      alert(
-        "Settings saved successfully!\n" + JSON.stringify(settings, null, 2)
-      );
+      showNotification("Settings saved successfully!", "success");
     });
   }
 
@@ -885,7 +881,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    alert("Data exported successfully!");
+    showNotification("Data exported successfully!", "success");
   }
 
   const viewAllActivitiesBtn = document.querySelector(
@@ -902,7 +898,7 @@ document.addEventListener("DOMContentLoaded", function () {
   activityItems.forEach((item) => {
     item.addEventListener("click", function () {
       const details = this.querySelector(".activity-details p").textContent;
-      alert(`Activity Details: ${details}`);
+      showNotification(`Activity Details: ${details}`, "success");
     });
   });
 
