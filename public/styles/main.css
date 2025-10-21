@@ -462,6 +462,10 @@ p {
   font-size: 0.8rem;
   transition: all 0.3s ease;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
 }
 
 .rating-submit-btn:hover {

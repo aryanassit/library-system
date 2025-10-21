@@ -852,16 +852,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (nameInput) {
-    nameInput.addEventListener("focus", () => {
+    nameInput.addEventListener("click", () => {
+      const userEmail = localStorage.getItem("userEmail");
       const userName = localStorage.getItem("userName");
-      if (userName && !nameInput.value.trim()) {
+      if (userEmail && userName && !nameInput.value.trim()) {
         nameInput.value = userName;
       }
     });
   }
 
   if (emailInput) {
-    emailInput.addEventListener("focus", () => {
+    emailInput.addEventListener("click", () => {
       const userEmail = localStorage.getItem("userEmail");
       if (userEmail && !emailInput.value.trim()) {
         emailInput.value = userEmail;
@@ -954,7 +955,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (profilePic) {
         const initial = userEmail.charAt(0).toUpperCase();
-        profilePic.src = `https://placehold.co/32x32/58a6ff/ffffff?text=${initial}`;
+        // Generate a simple placeholder image using canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = 32;
+        canvas.height = 32;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#58a6ff';
+        ctx.fillRect(0, 0, 32, 32);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(initial, 16, 24);
+        profilePic.src = canvas.toDataURL();
       }
       updateHeroButton(true);
     } else {
