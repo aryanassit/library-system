@@ -1,13 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
   checkLoginStatus();
 
-  const logoutDropdown = document.querySelector(".logout-dropdown");
+  const logoutDropdown = document.querySelector(".dropdown-item.logout-dropdown");
+  const profileDropdown = document.querySelector(".dropdown-item.profile-dropdown");
+  const settingsDropdown = document.querySelector(".dropdown-item.settings-dropdown");
   const goToLibraryBtn = document.querySelector(".go-to-library-btn");
   const profileBtn = document.querySelector(".profile-btn");
   const dropdownMenu = document.querySelector(".dropdown-menu");
 
   if (logoutDropdown) {
     logoutDropdown.addEventListener("click", handleLogout);
+  }
+
+  if (profileDropdown) {
+    profileDropdown.addEventListener("click", handleProfile);
+  }
+
+  if (settingsDropdown) {
+    settingsDropdown.addEventListener("click", handleSettings);
   }
 
   if (goToLibraryBtn) {
@@ -381,7 +391,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const countdownInterval = setInterval(() => {
           countdown--;
-          timerSpan.textContent = `Send again in: ${countdown} seconds`;
+          timerSpan.textContent = `Not received? Send again in: ${countdown} seconds`;
           if (countdown <= 0) {
             clearInterval(countdownInterval);
             timerSpan.style.visibility = 'hidden';
@@ -999,5 +1009,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function handleGoToLibrary() {
     window.location.href = "dashboard.html";
+  }
+
+  function handleProfile() {
+    // Navigate to profile page or open profile modal
+    window.location.href = "profile.html"; // Assuming a profile page exists
+  }
+
+  function handleSettings() {
+    // Navigate to settings page or open settings modal
+    window.location.href = "settings.html"; // Assuming a settings page exists
   }
 });

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
+const { requireAdmin } = require("./auth");
 
 router.get("/", (req, res) => {
   db.all("SELECT * FROM settings ORDER BY key", (err, rows) => {
@@ -87,6 +88,16 @@ router.delete("/:key", (req, res) => {
       return res.status(404).json({ error: "Setting not found" });
     }
     res.json({ message: "Setting deleted successfully" });
+  });
+});
+
+router.delete("/", requireAdmin, (req, res) => {
+  db.run("DELETE FROM settings", function (err) {
+    if (err) {
+      console.error("Error deleting all settings:", err);
+      return res.status(500).json({ error: "Failed to delete all settings" });
+    }
+    res.json({ message: "All settings deleted successfully" });
   });
 });
 

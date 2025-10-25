@@ -1,21 +1,35 @@
-let activities = JSON.parse(localStorage.getItem("dashboard_activities")) || [];
+let activities = [];
 
 function loadActivities() {
-  updateRecentActivities();
-  populateAllActivitiesModal();
+  fetch("/api/activities")
+    .then((response) => response.json())
+    .then((data) => {
+      activities = data;
+      updateRecentActivities();
+      populateAllActivitiesModal();
+    })
+    .catch((error) => {
+      console.error("Error loading activities:", error);
+      showNotification("Failed to load activities", "error");
+    });
 }
 
-function addActivity(type, message) {
-  const activity = {
-    type,
-    message,
-    timestamp: new Date().toISOString(),
-  };
-  activities.unshift(activity);
-  if (activities.length > 50) activities.pop();
-  localStorage.setItem("dashboard_activities", JSON.stringify(activities));
-  updateRecentActivities();
-  populateAllActivitiesModal();
+function addActivity(description, user_id = null) {
+  fetch("/api/activities", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ description, user_id }),
+  })
+    .then((response) => response.json())
+    .then((result) => {
+      loadActivities();
+    })
+    .catch((error) => {
+      console.error("Error adding activity:", error);
+      showNotification("Failed to add activity", "error");
+    });
 }
 
 function updateRecentActivities() {
@@ -28,7 +42,7 @@ function updateRecentActivities() {
     const item = document.createElement("div");
     item.className = "activity-item";
     item.innerHTML = `<div class="activity-icon"><i class="fas fa-info-circle"></i></div><div class="activity-details"><p>${
-      activity.message
+      activity.description
     }</p><span>${new Date(activity.timestamp).toLocaleString()}</span></div>`;
     list.appendChild(item);
   });
@@ -55,7 +69,7 @@ function populateAllActivitiesModal() {
     const item = document.createElement("div");
     item.className = "activity-item";
     item.innerHTML = `<div class="activity-icon"><i class="fas fa-info-circle"></i></div><div class="activity-details"><p>${
-      activity.message
+      activity.description
     }</p><span>${new Date(activity.timestamp).toLocaleString()}</span></div>`;
     list.appendChild(item);
   });
@@ -121,87 +135,66 @@ function showConfirm(message, callback) {
 }
 
 function loadBooks() {
-  const books = JSON.parse(localStorage.getItem("books")) || [
-    {
-      id: 1,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      genre: "Fiction",
-      status: "available",
-      isbn: "978-0-7432-7356-5",
-      publication_year: 1925,
-      description: "A classic novel about the American Dream.",
-    },
-    {
-      id: 2,
-      title: "1984",
-      author: "George Orwell",
-      genre: "Dystopian",
-      status: "borrowed",
-      isbn: "978-0-452-28423-4",
-      publication_year: 1949,
-      description: "A dystopian novel about totalitarianism.",
-    },
-  ];
-  const tbody = document.querySelector("#books-section tbody");
-  if (!tbody) return;
-  tbody.innerHTML = "";
-  books.forEach((book) => {
-    const row = document.createElement("tr");
-    row.dataset.id = book.id;
-    row.innerHTML = `
-        <td>${book.title}</td>
-        <td>${book.author}</td>
-        <td>${book.genre || "N/A"}</td>
-        <td><span class="status ${book.status}">${book.status}</span></td>
-        <td>
-          <button class="action-btn-small edit-btn" data-id="${
-            book.id
-          }"><i class="fas fa-edit"></i></button>
-          <button class="action-btn-small delete-btn" data-id="${
-            book.id
-          }"><i class="fas fa-trash"></i></button>
-        </td>
-      `;
-    tbody.appendChild(row);
-  });
+  fetch("/api/books")
+    .then((response) => response.json())
+    .then((books) => {
+      const tbody = document.querySelector("#books-section tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      books.forEach((book) => {
+        const row = document.createElement("tr");
+        row.dataset.id = book.id;
+        row.innerHTML = `
+            <td>${book.title}</td>
+            <td>${book.author}</td>
+            <td>${book.publication_year || "N/A"}</td>
+            <td><span class="status ${book.status}">${book.status}</span></td>
+            <td>
+              <button class="action-btn-small view-btn" data-id="${book.id}"><i class="fas fa-eye"></i></button>
+              <button class="action-btn-small edit-btn" data-id="${
+                book.id
+              }"><i class="fas fa-edit"></i></button>
+              <button class="action-btn-small delete-btn" data-id="${
+                book.id
+              }"><i class="fas fa-trash"></i></button>
+            </td>
+          `;
+        tbody.appendChild(row);
+      });
+    })
+    .catch((error) => {
+      console.error("Error loading books:", error);
+      showNotification("Failed to load books", "error");
+    });
 }
 
 function loadUsers() {
-  const users = JSON.parse(localStorage.getItem("users")) || [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      role: "user",
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      role: "admin",
-      status: "active",
-    },
-  ];
-  const tbody = document.querySelector("#users-section tbody");
-  if (!tbody) return;
-  tbody.innerHTML = "";
-  users.forEach((user) => {
-    const row = document.createElement("tr");
-    row.dataset.id = user.id;
-    row.innerHTML = `
-      <td>${user.name}</td>
-      <td>${user.email}</td>
-      <td>${user.role}</td>
-      <td><span class="status ${user.status}">${user.status}</span></td>
-      <td>
-        <button class="action-btn-small edit-btn" data-id="${user.id}"><i class="fas fa-edit"></i></button>
-        <button class="action-btn-small delete-btn" data-id="${user.id}"><i class="fas fa-trash"></i></button>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
+  fetch("/api/users")
+    .then((response) => response.json())
+    .then((users) => {
+      const tbody = document.querySelector("#users-section tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      users.forEach((user) => {
+        const row = document.createElement("tr");
+        row.dataset.id = user.id;
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td><span class="status ${user.status}">${user.status}</span></td>
+          <td>
+            <button class="action-btn-small edit-btn" data-id="${user.id}"><i class="fas fa-edit"></i></button>
+            <button class="action-btn-small delete-btn" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    })
+    .catch((error) => {
+      console.error("Error loading users:", error);
+      showNotification("Failed to load users", "error");
+    });
 }
 
 function loadSettings() {
@@ -220,6 +213,9 @@ function loadSettings() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Hide all modals by default
+  document.querySelectorAll('.modal, .modal-overlay').forEach(modal => modal.style.display = 'none');
+
   const sidebar = document.querySelector(".sidebar");
   const menuToggle = document.createElement("button");
   menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
@@ -296,29 +292,164 @@ document.addEventListener("DOMContentLoaded", function () {
   loadUsers();
 
   function updateStats() {
-    const books = JSON.parse(localStorage.getItem("books")) || [];
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    fetch("/api/books")
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then((books) => {
+        const totalBooks = books.length;
+        document.querySelector("#total-books-card .stat-info h3").textContent =
+          totalBooks.toLocaleString();
+      })
+      .catch((error) => {
+        console.error("Error fetching books:", error);
+      });
 
-    const totalBooks = books.length;
-    const availableBooks = books.filter(
-      (book) => book.status === "available"
-    ).length;
-    const borrowedBooks = books.filter(
-      (book) => book.status === "borrowed"
-    ).length;
-    const activeUsers = users.filter((user) => user.status === "active").length;
+    fetch("/api/users")
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then((users) => {
+        const activeUsers = users.filter(
+          (user) => user.status === "active" && user.role !== "admin"
+        ).length;
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const newRegistrations = users.filter(
+          (user) => new Date(user.created_at) > sevenDaysAgo
+        ).length;
+        document.querySelector("#active-users-card .stat-info h3").textContent =
+          activeUsers.toLocaleString();
+        document.querySelector(
+          "#new-registrations-card .stat-info h3"
+        ).textContent = newRegistrations.toLocaleString();
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
 
-    document.querySelectorAll(".stat-info h3")[0].textContent =
-      totalBooks.toLocaleString();
-    document.querySelectorAll(".stat-info h3")[1].textContent =
-      availableBooks.toLocaleString();
-    document.querySelectorAll(".stat-info h3")[2].textContent =
-      borrowedBooks.toLocaleString();
-    document.querySelectorAll(".stat-info h3")[3].textContent =
-      activeUsers.toLocaleString();
+    fetch("/api/submissions/rating")
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then((ratings) => {
+        const averageRating =
+          ratings.length > 0
+            ? (
+                ratings.reduce((sum, r) => sum + r.stars, 0) / ratings.length
+              ).toFixed(1)
+            : "0.0";
+        document.querySelector(
+          "#average-rating-card .stat-info h3"
+        ).textContent = averageRating;
+      })
+      .catch((error) => {
+        console.error("Error fetching ratings:", error);
+        document.querySelector(
+          "#average-rating-card .stat-info h3"
+        ).textContent = "0.0";
+      });
   }
 
   updateStats();
+
+  document
+    .querySelector("#total-books-card")
+    .addEventListener("click", function () {
+      navLinks.forEach((l) => l.parentElement.classList.remove("active"));
+      document
+        .querySelector('a[href="#books"]')
+        .parentElement.classList.add("active");
+      sections.forEach((section) => section.classList.add("hidden"));
+      document.getElementById("books-section").classList.remove("hidden");
+      document.querySelector(".recent-activity").classList.add("hidden");
+      loadBooks();
+    });
+
+  document
+    .querySelector("#active-users-card")
+    .addEventListener("click", function () {
+      navLinks.forEach((l) => l.parentElement.classList.remove("active"));
+      document
+        .querySelector('a[href="#users"]')
+        .parentElement.classList.add("active");
+      sections.forEach((section) => section.classList.add("hidden"));
+      document.getElementById("users-section").classList.remove("hidden");
+      document.querySelector(".recent-activity").classList.add("hidden");
+      loadUsers();
+    });
+
+  document
+    .querySelector("#new-registrations-card")
+    .addEventListener("click", function () {
+      navLinks.forEach((l) => l.parentElement.classList.remove("active"));
+      document
+        .querySelector('a[href="#users"]')
+        .parentElement.classList.add("active");
+      sections.forEach((section) => section.classList.add("hidden"));
+      document.getElementById("users-section").classList.remove("hidden");
+      document.querySelector(".recent-activity").classList.add("hidden");
+      loadUsers();
+    });
+
+  const averageRatingCard = document.querySelector("#average-rating-card");
+  if (averageRatingCard) {
+    averageRatingCard.addEventListener("click", function () {
+      fetch("/api/submissions/rating")
+        .then((response) => response.json())
+        .then((ratings) => {
+          const list = document.querySelector(".ratings-list");
+          if (!list) return;
+          list.innerHTML = "";
+          if (ratings.length === 0) {
+            list.innerHTML = "<p>No ratings yet.</p>";
+          } else {
+            ratings.forEach((rating) => {
+              const item = document.createElement("div");
+              item.className = "rating-item";
+              const date = new Date(rating.timestamp);
+              const formattedDate = date.toLocaleDateString("en-GB");
+              const currentUserName =
+                localStorage.getItem("userName") || "Anonymous";
+              const currentUserEmail =
+                localStorage.getItem("userEmail") || "N/A";
+              item.innerHTML = `
+                <div class="rating-compact">
+                  <div class="rating-header">
+                    <span class="rating-user">${currentUserName} (${currentUserEmail})</span>
+                    <span class="rating-date">${formattedDate}</span>
+                  </div>
+                  <div class="rating-stars">${"★".repeat(
+                    rating.stars
+                  )}${"☆".repeat(5 - rating.stars)}</div>
+                  <div class="rating-message">${rating.message}</div>
+                  ${
+                    rating.reply
+                      ? `<div class="rating-reply-display">Reply: ${rating.reply}</div>`
+                      : ""
+                  }
+                  <div class="rating-reply">
+                    <button onclick="replyToRating(${rating.id})">Reply</button>
+                  </div>
+                </div>
+              `;
+              list.appendChild(item);
+            });
+          }
+          openModal("ratings-modal");
+        })
+        .catch((error) => {
+          console.error("Error loading ratings:", error);
+          showNotification("Failed to load ratings", "error");
+        });
+    });
+  }
 
   const actionButtons = document.querySelectorAll(".action-btn");
   actionButtons.forEach((button) => {
@@ -365,15 +496,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  document.querySelectorAll(".close").forEach((closeBtn) => {
+  document.querySelectorAll(".close, .close-button").forEach((closeBtn) => {
     closeBtn.addEventListener("click", function () {
-      const modal = this.closest(".modal");
+      const modal = this.closest(".modal, .modal-overlay");
       if (modal) modal.style.display = "none";
     });
   });
 
   window.addEventListener("click", function (e) {
-    if (e.target.classList.contains("modal")) {
+    if (e.target.classList.contains("modal") || e.target.classList.contains("modal-overlay")) {
       e.target.style.display = "none";
     }
   });
@@ -386,69 +517,68 @@ document.addEventListener("DOMContentLoaded", function () {
       const editId = data.id;
 
       if (this.closest("#add-book-modal")) {
-        let books = JSON.parse(localStorage.getItem("books")) || [];
-        if (editId) {
-          const index = books.findIndex((book) => book.id == editId);
-          if (index !== -1) {
-            books[index] = {
-              ...books[index],
-              title: data.title,
-              author: data.author,
-              isbn: data.isbn,
-              genre: data.genre,
-              publication_year: data.publicationYear,
-              description: data.description,
-            };
-          }
-        } else {
-          const newId = Math.max(...books.map((b) => b.id), 0) + 1;
-          books.push({
-            id: newId,
-            title: data.title,
-            author: data.author,
-            isbn: data.isbn,
-            genre: data.genre,
-            publication_year: data.publicationYear,
-            description: data.description,
-            status: "available",
-          });
-        }
-        localStorage.setItem("books", JSON.stringify(books));
+        const bookData = {
+          title: data.title,
+          author: data.author,
+          isbn: data.isbn,
+          genre: data.genre,
+          publication_year: parseInt(data.publicationYear) || null,
+          description: data.description,
+          status: "available",
+        };
 
-        const action = editId ? "updated" : "added";
-        addActivity(`Book ${action}: ${data.title} by ${data.author}`);
-        showNotification(`Book ${action} successfully!`);
-        loadBooks();
-        updateStats();
+        const method = editId ? "PUT" : "POST";
+        const url = editId ? `/api/books/${editId}` : "/api/books";
+
+        fetch(url, {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bookData),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            const action = editId ? "updated" : "added";
+            addActivity(`Book ${action}: ${data.title} by ${data.author}`);
+            showNotification(`Book ${action} successfully!`);
+            loadBooks();
+            updateStats();
+          })
+          .catch((error) => {
+            console.error("Error saving book:", error);
+            showNotification("Failed to save book", "error");
+          });
       } else if (this.closest("#add-user-modal")) {
-        let users = JSON.parse(localStorage.getItem("users")) || [];
-        if (editId) {
-          const index = users.findIndex((user) => user.id == editId);
-          if (index !== -1) {
-            users[index] = {
-              ...users[index],
-              name: data["Full Name"],
-              email: data.Email,
-              role: data.Role,
-            };
-          }
-        } else {
-          const newId = Math.max(...users.map((u) => u.id), 0) + 1;
-          users.push({
-            id: newId,
-            name: data["Full Name"],
-            email: data.Email,
-            role: data.Role,
-            status: "active",
-          });
-        }
-        localStorage.setItem("users", JSON.stringify(users));
+        const userData = {
+          name: data["Full Name"],
+          email: data.Email,
+          role: data.Role,
+          status: "active",
+        };
 
-        const action = editId ? "updated" : "registered";
-        addActivity(`User ${action}: ${data["Full Name"]} (${data.Email})`);
-        showNotification(`User ${action} successfully!`);
-        loadUsers();
-        updateStats();
+        const method = editId ? "PUT" : "POST";
+        const url = editId ? `/api/users/${editId}` : "/api/users";
+
+        fetch(url, {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            const action = editId ? "updated" : "registered";
+            addActivity(`User ${action}: ${data["Full Name"]} (${data.Email})`);
+            showNotification(`User ${action} successfully!`);
+            loadUsers();
+            updateStats();
+          })
+          .catch((error) => {
+            console.error("Error saving user:", error);
+            showNotification("Failed to save user", "error");
+          });
       } else if (this.closest("#import-books-modal")) {
         const fileInput = document.getElementById("books-file");
         const file = fileInput.files[0];
@@ -563,76 +693,131 @@ document.addEventListener("DOMContentLoaded", function () {
     openModal("notifications-modal");
   });
 
-  const adminProfile = document.querySelector(".admin-profile");
-  const dropdown = document.getElementById("profile-dropdown");
+  const profileBtn = document.querySelector(".profile-btn");
+  const dropdown = document.querySelector(".profile-dropdown .dropdown-menu");
 
-  adminProfile.addEventListener("click", function (e) {
+  profileBtn.addEventListener("click", function (e) {
     e.stopPropagation();
-    dropdown.style.display =
-      dropdown.style.display === "block" ? "none" : "block";
+    dropdown.classList.toggle("show");
   });
 
   document.addEventListener("click", function (e) {
-    if (!adminProfile.contains(e.target)) {
-      dropdown.style.display = "none";
+    if (!profileBtn.contains(e.target)) {
+      dropdown.classList.remove("show");
     }
   });
 
   document
+    .querySelector(".dropdown-item.logout-dropdown")
+    .addEventListener("click", function (e) {
+      e.preventDefault();
+
+      fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.message === "Logged out successfully") {
+            localStorage.clear();
+            sessionStorage.clear();
+
+            window.location.href = "index.html";
+          } else {
+            showNotification("Logout failed", "error");
+          }
+        })
+        .catch((error) => {
+          console.error("Error logging out:", error);
+          showNotification("Logout failed", "error");
+        });
+    });
+
+  document
     .querySelector("#books-section tbody")
     .addEventListener("click", function (e) {
-      const btn = e.target.closest(".edit-btn, .delete-btn");
+      const btn = e.target.closest(".view-btn, .edit-btn, .delete-btn");
       if (!btn) return;
 
       const row = btn.closest("tr");
       const id = btn.dataset.id;
       const isBook = true;
 
-      if (btn.classList.contains("edit-btn")) {
-        const modalId = "add-book-modal";
-        const storageKey = "books";
-        const items = JSON.parse(localStorage.getItem(storageKey)) || [];
-        const item = items.find((item) => item.id == id);
-
-        if (item) {
-          const modal = document.getElementById(modalId);
-          if (modal) {
-            modal.querySelector('[name="title"]').value = item.title || "";
-            modal.querySelector('[name="author"]').value = item.author || "";
-            modal.querySelector('[name="isbn"]').value = item.isbn || "";
-            modal.querySelector('[name="genre"]').value = item.genre || "";
-            modal.querySelector('[name="publicationYear"]').value =
-              item.publication_year || "";
-            modal.querySelector('[name="description"]').value =
-              item.description || "";
-            let editIdInput = modal.querySelector("#edit-id");
-            if (!editIdInput) {
-              editIdInput = document.createElement("input");
-              editIdInput.type = "hidden";
-              editIdInput.id = "edit-id";
-              editIdInput.name = "id";
-              modal.querySelector(".modal-form").appendChild(editIdInput);
+      if (btn.classList.contains("view-btn")) {
+        fetch(`/api/books/${id}`)
+          .then((response) => response.json())
+          .then((book) => {
+            document.getElementById("book-title").textContent = book.title || "N/A";
+            document.getElementById("book-author").textContent = book.author || "N/A";
+            document.getElementById("book-genre").textContent = book.genre || "N/A";
+            document.getElementById("book-isbn").textContent = book.isbn || "N/A";
+            document.getElementById("book-issue-date").textContent = book.publication_year || "N/A";
+            document.getElementById("book-description").textContent = book.description || "N/A";
+            document.getElementById("book-status").textContent = book.status || "N/A";
+            document.getElementById("book-updated-at").textContent = book.updated_at ? new Date(book.updated_at).toLocaleDateString() : "N/A";
+            document.getElementById("book-cover-image").src = book.cover_image || "https://via.placeholder.com/150x200/cccccc/000000?text=No+Cover";
+            openModal("view-book-modal");
+          })
+          .catch((error) => {
+            console.error("Error fetching book details:", error);
+            showNotification("Failed to load book details", "error");
+          });
+      } else if (btn.classList.contains("edit-btn")) {
+        fetch(`/api/books/${id}`)
+          .then((response) => response.json())
+          .then((item) => {
+            const modalId = "add-book-modal";
+            const modal = document.getElementById(modalId);
+            if (modal) {
+              modal.querySelector('[name="title"]').value = item.title || "";
+              modal.querySelector('[name="author"]').value = item.author || "";
+              modal.querySelector('[name="isbn"]').value = item.isbn || "";
+              modal.querySelector('[name="genre"]').value = item.genre || "";
+              modal.querySelector('[name="publicationYear"]').value =
+                item.publication_year || "";
+              modal.querySelector('[name="description"]').value =
+                item.description || "";
+              let editIdInput = modal.querySelector("#edit-id");
+              if (!editIdInput) {
+                editIdInput = document.createElement("input");
+                editIdInput.type = "hidden";
+                editIdInput.id = "edit-id";
+                editIdInput.name = "id";
+                modal.querySelector(".modal-form").appendChild(editIdInput);
+              }
+              editIdInput.value = id;
+              modal.style.display = "block";
             }
-            editIdInput.value = id;
-            modal.style.display = "block";
-          }
-        } else {
-          showNotification("Item not found", "error");
-        }
+          })
+          .catch((error) => {
+            console.error("Error fetching book:", error);
+            showNotification("Item not found", "error");
+          });
       } else if (btn.classList.contains("delete-btn")) {
         const title = row.cells[0].textContent;
         showConfirm(
           `Are you sure you want to delete "${title}"?`,
           (confirmed) => {
             if (confirmed) {
-              const storageKey = "books";
-              let items = JSON.parse(localStorage.getItem(storageKey)) || [];
-              items = items.filter((item) => item.id != id);
-              localStorage.setItem(storageKey, JSON.stringify(items));
-              row.remove();
-              showNotification("Item deleted successfully!");
-              loadBooks();
-              updateStats();
+              fetch(`/api/books/${id}`, {
+                method: "DELETE",
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    row.remove();
+                    showNotification("Item deleted successfully!");
+                    loadBooks();
+                    updateStats();
+                  } else {
+                    throw new Error("Failed to delete book");
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error deleting book:", error);
+                  showNotification("Failed to delete book", "error");
+                });
             }
           }
         );
@@ -650,46 +835,55 @@ document.addEventListener("DOMContentLoaded", function () {
       const isBook = false;
 
       if (btn.classList.contains("edit-btn")) {
-        const modalId = "add-user-modal";
-        const storageKey = "users";
-        const items = JSON.parse(localStorage.getItem(storageKey)) || [];
-        const item = items.find((item) => item.id == id);
-
-        if (item) {
-          const modal = document.getElementById(modalId);
-          if (modal) {
-            modal.querySelector('[name="Full Name"]').value = item.name || "";
-            modal.querySelector('[name="Email"]').value = item.email || "";
-            modal.querySelector('[name="Password"]').value = "";
-            modal.querySelector('[name="Role"]').value = item.role || "";
-            let editIdInput = modal.querySelector("#edit-id");
-            if (!editIdInput) {
-              editIdInput = document.createElement("input");
-              editIdInput.type = "hidden";
-              editIdInput.id = "edit-id";
-              editIdInput.name = "id";
-              modal.querySelector(".modal-form").appendChild(editIdInput);
+        fetch(`/api/users/${id}`)
+          .then((response) => response.json())
+          .then((item) => {
+            const modalId = "add-user-modal";
+            const modal = document.getElementById(modalId);
+            if (modal) {
+              modal.querySelector('[name="Full Name"]').value = item.name || "";
+              modal.querySelector('[name="Email"]').value = item.email || "";
+              modal.querySelector('[name="Password"]').value = "";
+              modal.querySelector('[name="Role"]').value = item.role || "";
+              let editIdInput = modal.querySelector("#edit-id");
+              if (!editIdInput) {
+                editIdInput = document.createElement("input");
+                editIdInput.type = "hidden";
+                editIdInput.id = "edit-id";
+                editIdInput.name = "id";
+                modal.querySelector(".modal-form").appendChild(editIdInput);
+              }
+              editIdInput.value = id;
+              modal.style.display = "block";
             }
-            editIdInput.value = id;
-            modal.style.display = "block";
-          }
-        } else {
-          showNotification("Item not found", "error");
-        }
+          })
+          .catch((error) => {
+            console.error("Error fetching user:", error);
+            showNotification("Item not found", "error");
+          });
       } else if (btn.classList.contains("delete-btn")) {
         const title = row.cells[0].textContent;
         showConfirm(
           `Are you sure you want to delete "${title}"?`,
           (confirmed) => {
             if (confirmed) {
-              const storageKey = "users";
-              let items = JSON.parse(localStorage.getItem(storageKey)) || [];
-              items = items.filter((item) => item.id != id);
-              localStorage.setItem(storageKey, JSON.stringify(items));
-              row.remove();
-              showNotification("Item deleted successfully!");
-              loadUsers();
-              updateStats();
+              fetch(`/api/users/${id}`, {
+                method: "DELETE",
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    row.remove();
+                    showNotification("Item deleted successfully!");
+                    loadUsers();
+                    updateStats();
+                  } else {
+                    throw new Error("Failed to delete user");
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error deleting user:", error);
+                  showNotification("Failed to delete user", "error");
+                });
             }
           }
         );
@@ -830,6 +1024,57 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  const viewReviewsBtn = document.querySelector(".view-reviews-btn");
+  if (viewReviewsBtn) {
+    viewReviewsBtn.addEventListener("click", function () {
+      fetch("/api/submissions/rating")
+        .then((response) => response.json())
+        .then((ratings) => {
+          const list = document.querySelector(".ratings-list");
+          if (!list) return;
+          list.innerHTML = "";
+          if (ratings.length === 0) {
+            list.innerHTML = "<p>No reviews yet.</p>";
+          } else {
+            ratings.forEach((rating) => {
+              const item = document.createElement("div");
+              item.className = "rating-item";
+              const date = new Date(rating.timestamp);
+              const formattedDate = date.toLocaleDateString("en-GB");
+              item.innerHTML = `
+                <div class="rating-compact">
+                  <div class="rating-header">
+                    <span class="rating-user">${rating.user} (${
+                rating.email
+              })</span>
+                    <span class="rating-date">${formattedDate}</span>
+                  </div>
+                  <div class="rating-stars">${"★".repeat(
+                    rating.stars
+                  )}${"☆".repeat(5 - rating.stars)}</div>
+                  <div class="rating-message">${rating.message}</div>
+                  ${
+                    rating.reply
+                      ? `<div class="rating-reply-display">Reply: ${rating.reply}</div>`
+                      : ""
+                  }
+                  <div class="rating-reply">
+                    <button onclick="replyToRating(${rating.id})">Reply</button>
+                  </div>
+                </div>
+              `;
+              list.appendChild(item);
+            });
+          }
+          openModal("ratings-modal");
+        })
+        .catch((error) => {
+          console.error("Error loading reviews:", error);
+          showNotification("Failed to load reviews", "error");
+        });
+    });
+  }
+
   const saveSettingsBtn = document.querySelector(".save-settings-btn");
   if (saveSettingsBtn) {
     saveSettingsBtn.addEventListener("click", function () {
@@ -934,40 +1179,87 @@ document.addEventListener("DOMContentLoaded", function () {
     passwordConfirmForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const password = document.getElementById("confirm-password").value;
-      if (password === "admin") {
-        performAction(currentAction);
-        closeModal("password-confirm-modal");
-        document.getElementById("confirm-password").value = "";
-      } else {
-        showNotification("Incorrect password", "error");
-      }
+
+      fetch("/api/auth/verify-admin-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.message === "Password verified successfully") {
+            performAction(currentAction);
+            closeModal("password-confirm-modal");
+            document.getElementById("confirm-password").value = "";
+          } else {
+            showNotification("Incorrect password", "error");
+          }
+        })
+        .catch((error) => {
+          console.error("Error verifying password:", error);
+          showNotification("Failed to verify password", "error");
+        });
     });
   }
 
   function performAction(action) {
     switch (action) {
       case "removeBooks":
-        localStorage.removeItem("books");
-        loadBooks();
-        updateStats();
-        addActivity("system", "All books removed");
-        showNotification("All books removed successfully");
+        fetch("/api/books", {
+          method: "DELETE",
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            loadBooks();
+            updateStats();
+            addActivity("All books removed");
+            showNotification("All books removed successfully");
+          })
+          .catch((error) => {
+            console.error("Error removing all books:", error);
+            showNotification("Failed to remove all books", "error");
+          });
         break;
       case "removeUsers":
-        localStorage.removeItem("users");
-        loadUsers();
-        updateStats();
-        addActivity("system", "All users removed");
-        showNotification("All users removed successfully");
+        fetch("/api/users", {
+          method: "DELETE",
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            loadUsers();
+            updateStats();
+            addActivity("All users removed");
+            showNotification("All users removed successfully");
+          })
+          .catch((error) => {
+            console.error("Error removing all users:", error);
+            showNotification("Failed to remove all users", "error");
+          });
         break;
       case "resetWebapp":
-        localStorage.clear();
-        loadBooks();
-        loadUsers();
-        updateStats();
-        loadActivities();
-        addActivity("system", "Webapp reset");
-        showNotification("Webapp reset successfully");
+        Promise.all([
+          fetch("/api/books", { method: "DELETE" }),
+          fetch("/api/users", { method: "DELETE" }),
+          fetch("/api/activities", { method: "DELETE" }),
+          fetch("/api/settings", { method: "DELETE" }),
+          fetch("/api/submissions/ratings", { method: "DELETE" }),
+          fetch("/api/submissions/contact", { method: "DELETE" }),
+        ])
+          .then((responses) => Promise.all(responses.map((r) => r.json())))
+          .then((results) => {
+            loadBooks();
+            loadUsers();
+            updateStats();
+            loadActivities();
+            addActivity("Webapp reset");
+            showNotification("Webapp reset successfully");
+          })
+          .catch((error) => {
+            console.error("Error resetting webapp:", error);
+            showNotification("Failed to reset webapp", "error");
+          });
         break;
     }
   }
@@ -980,4 +1272,74 @@ document.addEventListener("DOMContentLoaded", function () {
       sidebar.classList.remove("show");
     }
   });
+
+  window.replyToRating = function (ratingId) {
+    const replyText = prompt("Enter your reply:");
+    if (replyText && replyText.trim()) {
+      fetch(`/api/submissions/rating/${ratingId}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reply: replyText.trim() }),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          showNotification("Reply added successfully!");
+
+          fetch("/api/submissions/rating")
+            .then((response) => response.json())
+            .then((ratings) => {
+              const list = document.querySelector(".ratings-list");
+              if (!list) return;
+              list.innerHTML = "";
+              if (ratings.length === 0) {
+                list.innerHTML = "<p>No ratings yet.</p>";
+              } else {
+                ratings.forEach((rating) => {
+                  const item = document.createElement("div");
+                  item.className = "rating-item";
+                  const date = new Date(rating.timestamp);
+                  const formattedDate = date.toLocaleDateString("en-GB");
+                  const currentUserName =
+                    localStorage.getItem("userName") || "Anonymous";
+                  const currentUserEmail =
+                    localStorage.getItem("userEmail") || "N/A";
+                  item.innerHTML = `
+                    <div class="rating-compact">
+                      <div class="rating-header">
+                        <span class="rating-user">${currentUserName} (${currentUserEmail})</span>
+                        <span class="rating-date">${formattedDate}</span>
+                      </div>
+                      <div class="rating-stars">${"★".repeat(
+                        rating.stars
+                      )}${"☆".repeat(5 - rating.stars)}</div>
+                      <div class="rating-message">${rating.message}</div>
+                      ${
+                        rating.reply
+                          ? `<div class="rating-reply-display">Reply: ${rating.reply}</div>`
+                          : ""
+                      }
+                      <div class="rating-reply">
+                        <button onclick="replyToRating(${
+                          rating.id
+                        })">Reply</button>
+                      </div>
+                    </div>
+                  `;
+                  list.appendChild(item);
+                });
+              }
+            })
+            .catch((error) => {
+              console.error("Error reloading ratings:", error);
+              showNotification("Failed to reload ratings", "error");
+            });
+        })
+        .catch((error) => {
+          console.error("Error adding reply:", error);
+          showNotification("Failed to add reply", "error");
+        });
+    }
+  };
 });

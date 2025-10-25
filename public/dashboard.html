@@ -106,43 +106,49 @@
             <button class="btn notification-btn">
               <i class="fas fa-bell"></i>
             </button>
-            <div class="admin-profile">
-              <img
-                src="https://lh3.googleusercontent.com/a/ACg8ocIsDmCpGHXVSTiR673njNU9NiEmJ1xNJRx8Fwk7xaA_DBE_cKk=s360-c-no"
-                alt="Admin"
+            <div class="profile-dropdown" style="display: inline-block;">
+              <button class="btn profile-btn">
+                <img
+                src="https://via.placeholder.com/32x32/58a6ff/ffffff?text=U"
+                alt="Profile"
+                class="profile-pic"
               />
-              <span>Admin User</span>
+              </button>
+              <div class="dropdown-menu">
+
+                <button class="dropdown-item logout-dropdown">Logout</button>
+              </div>
             </div>
           </div>
         </header>
 
         <section class="dashboard-overview">
           <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" id="total-books-card">
               <div class="stat-icon"><i class="fas fa-book"></i></div>
               <div class="stat-info">
-                <h3>1,234</h3>
+                <h3>0</h3>
                 <p>Total Books</p>
               </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" id="active-users-card">
               <div class="stat-icon"><i class="fas fa-users"></i></div>
               <div class="stat-info">
-                <h3>567</h3>
+                <h3>0</h3>
                 <p>Active Users</p>
               </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" id="new-registrations-card">
               <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
               <div class="stat-info">
-                <h3>89</h3>
+                <h3>0</h3>
                 <p>New Registrations</p>
               </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" id="average-rating-card">
               <div class="stat-icon"><i class="fas fa-star"></i></div>
               <div class="stat-info">
-                <h3>4.8</h3>
+                <h3>0.0</h3>
                 <p>Average Rating</p>
               </div>
             </div>
@@ -198,7 +204,7 @@
                 <tr>
                   <th>Title</th>
                   <th>Author</th>
-                  <th>ISBN</th>
+                  <th>Issue Year</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -207,9 +213,12 @@
                 <tr>
                   <td>The Great Gatsby</td>
                   <td>F. Scott Fitzgerald</td>
-                  <td>978-0-7432-7356-5</td>
+                  <td>1925</td>
                   <td><span class="status available">Available</span></td>
                   <td>
+                    <button class="action-btn-small view-btn">
+                      <i class="fas fa-eye"></i>
+                    </button>
                     <button class="action-btn-small edit-btn">
                       <i class="fas fa-edit"></i>
                     </button>
@@ -221,9 +230,12 @@
                 <tr>
                   <td>1984</td>
                   <td>George Orwell</td>
-                  <td>978-0-452-28423-4</td>
+                  <td>1949</td>
                   <td><span class="status borrowed">Borrowed</span></td>
                   <td>
+                    <button class="action-btn-small view-btn">
+                      <i class="fas fa-eye"></i>
+                    </button>
                     <button class="action-btn-small edit-btn">
                       <i class="fas fa-edit"></i>
                     </button>
@@ -316,6 +328,11 @@
               <button class="btn generate-report-btn">Generate Report</button>
             </div>
             <div class="report-card">
+              <h3>Reviews</h3>
+              <p>User ratings and feedback</p>
+              <button class="btn view-reviews-btn">View Reviews</button>
+            </div>
+            <div class="report-card">
               <h3>System Usage</h3>
               <p>Platform performance data</p>
               <button class="btn generate-report-btn">Generate Report</button>
@@ -396,11 +413,12 @@
             placeholder="Full Name"
             required
           />
-          <input type="email" name="Email" placeholder="Email" required />
+          <input type="email" name="Email" placeholder="Email" autocomplete="username" required />
           <input
             type="password"
             name="Password"
             placeholder="Password"
+            autocomplete="new-password"
             required
           />
           <select name="Role" required>
@@ -434,11 +452,7 @@
       </div>
     </div>
 
-    <div id="profile-dropdown" class="dropdown-menu">
-      <a href="#"><i class="fas fa-user"></i> Profile</a>
-      <a href="#"><i class="fas fa-cog"></i> Account Settings</a>
-      <a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    </div>
+
 
     <div id="all-activities-modal" class="modal">
       <div class="modal-content">
@@ -535,18 +549,83 @@
     </div>
 
     <div id="password-confirm-modal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Confirm Password</h3>
+      <div class="modal-content" style="max-width: 400px; padding: 20px; border-radius: 12px; background: #1a1a1a; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <span class="close" style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #ccc;">&times;</span>
+        <h3 style="margin-bottom: 20px; color: #58a6ff; font-weight: 600;">Confirm Password</h3>
         <form class="modal-form" id="password-confirm-form">
           <input
             type="password"
             id="confirm-password"
             placeholder="Enter admin password"
+            autocomplete="current-password"
             required
+            style="width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2a2a2a; color: #fff; margin-bottom: 15px;"
           />
-          <button type="submit" class="btn submit-btn">Confirm</button>
+          <button type="submit" class="btn submit-btn" style="background: #58a6ff; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%;">Confirm</button>
         </form>
+      </div>
+    </div>
+
+    <div id="ratings-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>User Ratings</h3>
+        <div class="ratings-list"></div>
+      </div>
+    </div>
+
+    <div id="view-book-modal" class="modal-overlay">
+      <div class="book-details-modal">
+        <button class="close-button">&times;</button>
+        <div class="modal-content-wrapper">
+          <div class="cover-section">
+            <div class="book-cover-image">
+              <img id="book-cover-image" src="https://picsum.photos/250/375?random=1" alt="Book Cover" />
+            </div>
+            <div class="action-buttons">
+              <a href="#" class="btn btn-primary">Issue Book</a>
+              <a href="#" class="btn btn-secondary">Add to Wishlist</a>
+            </div>
+          </div>
+          <div class="info-section">
+            <div class="book-header">
+              <h1 id="book-title" class="book-title">The Midnight Library</h1>
+              <p class="book-author">by <span id="book-author">Matt Haig</span></p>
+            </div>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Status</span>
+                <span id="book-status" class="detail-value status-available">Available</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Genre</span>
+                <span id="book-genre" class="detail-value">Fiction, Fantasy</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">ISBN</span>
+                <span id="book-isbn" class="detail-value">978-0525559474</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Publication Year</span>
+                <span id="book-issue-date" class="detail-value">2020</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Issue Date</span>
+                <span class="detail-value">N/A</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Last Updated</span>
+                <span id="book-updated-at" class="detail-value">10/25/2025</span>
+              </div>
+            </div>
+            <div class="description-section">
+              <h2 class="section-title">Description</h2>
+              <p id="book-description" class="description-text">
+                Between life and death, there is a library. When Nora Seed finds herself faced with the possibility of changing her life for a new one, following a different path, she must decide what is truly fulfilling in life. A captivating and thought-provoking novel exploring choices, regrets, and second chances.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

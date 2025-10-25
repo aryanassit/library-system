@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
 const db = require("../database/db");
+const { requireAdmin } = require("./auth");
 
 router.get("/", (req, res) => {
   const { search, status, role, sortBy, sortOrder } = req.query;
@@ -173,6 +174,21 @@ router.delete("/:id", (req, res) => {
 
       res.json({ message: "User deleted successfully" });
     });
+  });
+});
+
+router.delete("/", requireAdmin, (req, res) => {
+  db.run("DELETE FROM users", function (err) {
+    if (err) {
+      console.error("Error deleting all users:", err);
+      return res.status(500).json({ error: "Failed to delete all users" });
+    }
+
+    db.run("INSERT INTO activities (description) VALUES (?)", [
+      "All users removed",
+    ]);
+
+    res.json({ message: "All users deleted successfully" });
   });
 });
 

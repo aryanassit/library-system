@@ -11,6 +11,9 @@ CREATE TABLE books (
     publication_year INTEGER,
     description TEXT,
     status TEXT DEFAULT 'available' CHECK (status IN ('available', 'borrowed')),
+    cover_image TEXT,
+    book_link TEXT,
+    quantity INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

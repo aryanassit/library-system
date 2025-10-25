@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
+const { requireAdmin } = require("./auth");
 
 router.get("/", (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
@@ -51,6 +52,16 @@ router.delete("/:id", (req, res) => {
       return res.status(404).json({ error: "Activity not found" });
     }
     res.json({ message: "Activity deleted successfully" });
+  });
+});
+
+router.delete("/", requireAdmin, (req, res) => {
+  db.run("DELETE FROM activities", function (err) {
+    if (err) {
+      console.error("Error deleting all activities:", err);
+      return res.status(500).json({ error: "Failed to delete all activities" });
+    }
+    res.json({ message: "All activities deleted successfully" });
   });
 });
 

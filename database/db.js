@@ -16,11 +16,23 @@ function initializeDatabase() {
   const schemaPath = path.join(__dirname, "schema.sql");
   const schema = fs.readFileSync(schemaPath, "utf8");
 
-  db.exec(schema, (err) => {
+  // Check if tables already exist
+  db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='books'", (err, row) => {
     if (err) {
-      console.error("Error initializing database:", err.message);
+      console.error("Error checking database:", err.message);
+      return;
+    }
+
+    if (row) {
+      console.log("Database already initialized.");
     } else {
-      console.log("Database initialized successfully.");
+      db.exec(schema, (err) => {
+        if (err) {
+          console.error("Error initializing database:", err.message);
+        } else {
+          console.log("Database initialized successfully.");
+        }
+      });
     }
   });
 }

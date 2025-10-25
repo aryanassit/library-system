@@ -12,6 +12,8 @@ db.serialize(() => {
         stars INTEGER NOT NULL,
         message TEXT,
         user TEXT,
+        email TEXT,
+        reply TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
@@ -22,6 +24,13 @@ db.serialize(() => {
         message TEXT NOT NULL,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
+
+  // Add email column if it doesn't exist
+  db.run(`ALTER TABLE ratings ADD COLUMN email TEXT`, (err) => {
+    if (err && !err.message.includes('duplicate column name')) {
+      console.error('Error adding email column:', err.message);
+    }
+  });
 });
 
 module.exports = db;

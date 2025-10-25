@@ -1,13 +1,10 @@
-# TODO: Implement Autofill for Contact Form Inputs on Click
+# TODO: Add View Button and Update Book List
 
 ## Tasks
-- [x] Change event listener for name input from 'focus' to 'click' in app.js
-- [x] Change event listener for email input from 'focus' to 'click' in app.js
-- [x] Fix autofill logic to properly check login status using userEmail
-- [ ] Test the autofill functionality to ensure it works when inputs are clicked and user is logged in
-- [ ] Verify that inputs do not autofill if no user is logged in
-
-## Notes
-- Updated autofill to check for userEmail in localStorage as indicator of login status.
-- Only fills if input is empty and user is logged in.
-- Ensure the change matches the task requirement exactly.
+- [x] Update table headers in `public/dashboard.html`: Change "ISBN" to "Issue Year"
+- [x] Modify `loadBooks()` in `public/scripts/dashboard.js`: Update row HTML to show publication_year instead of genre, add view button with eye icon
+- [x] Add new modal HTML in `public/dashboard.html`: Create "view-book-modal" with fields for all book details (title, author, cover image, genre, ISBN, issue date/publication_year, description, book link, status, quantity, created/updated dates)
+- [x] Update event listeners in `public/scripts/dashboard.js`: Add handler for view button to fetch book data, populate modal, and open it
+- [x] Ensure modal closes properly and handles missing data (e.g., placeholder for cover image)
+- [x] Test the view modal functionality
+- [x] Verify table displays correctly with new columns

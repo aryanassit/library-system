@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
+const { requireAdmin } = require("./auth");
 
 router.get("/", (req, res) => {
   const { search, status, sortBy, sortOrder } = req.query;
@@ -147,6 +148,21 @@ router.delete("/:id", (req, res) => {
 
       res.json({ message: "Book deleted successfully" });
     });
+  });
+});
+
+router.delete("/", requireAdmin, (req, res) => {
+  db.run("DELETE FROM books", function (err) {
+    if (err) {
+      console.error("Error deleting all books:", err);
+      return res.status(500).json({ error: "Failed to delete all books" });
+    }
+
+    db.run("INSERT INTO activities (description) VALUES (?)", [
+      "All books removed",
+    ]);
+
+    res.json({ message: "All books deleted successfully" });
   });
 });
 

@@ -8,15 +8,22 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "sqlite3": "^5.1.6",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "bcryptjs": "^2.4.3"
+    "express": "^4.18.2",
+    "express-session": "^1.18.2",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["library", "management", "dashboard", "sql", "nodejs"],
+  "keywords": [
+    "library",
+    "management",
+    "dashboard",
+    "sql",
+    "nodejs"
+  ],
   "author": "",
   "license": "ISC"
 }

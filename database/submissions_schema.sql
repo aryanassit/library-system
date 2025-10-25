@@ -3,6 +3,8 @@ CREATE TABLE IF NOT EXISTS ratings (
     stars INTEGER NOT NULL,
     message TEXT,
     user TEXT,
+    email TEXT,
+    reply TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
