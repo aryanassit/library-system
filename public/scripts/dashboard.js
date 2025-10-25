@@ -485,7 +485,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-      modal.style.display = "block";
+      if (modal.classList.contains("modal-overlay")) {
+        modal.style.display = "flex";
+      } else {
+        modal.style.display = "block";
+      }
     }
   }
 
@@ -690,7 +694,56 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const notificationBtn = document.querySelector(".notification-btn");
   notificationBtn.addEventListener("click", function () {
+    loadNotifications();
     openModal("notifications-modal");
+  });
+
+  function loadNotifications() {
+    fetch("/api/submissions/notifications")
+      .then((response) => response.json())
+      .then((notifications) => {
+        const list = document.querySelector(".notifications-list");
+        if (!list) return;
+        list.innerHTML = "";
+        if (notifications.length === 0) {
+          list.innerHTML = "<p>No notifications yet.</p>";
+        } else {
+          notifications.forEach((notification) => {
+            const item = document.createElement("div");
+            item.className = "notification-item";
+            const date = new Date(notification.timestamp);
+            const formattedDate = date.toLocaleDateString("en-GB");
+            item.innerHTML = `
+              <p>${notification.message}</p>
+              <span>${formattedDate}</span>
+              ${notification.is_read == 0 ? '<button class="mark-read-btn" data-id="' + notification.id + '">Mark as Read</button>' : ''}
+            `;
+            list.appendChild(item);
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading notifications:", error);
+        showNotification("Failed to load notifications", "error");
+      });
+  }
+
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("mark-read-btn")) {
+      const id = e.target.dataset.id;
+      fetch(`/api/submissions/notifications/${id}/read`, {
+        method: "PUT",
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          loadNotifications();
+          showNotification("Notification marked as read");
+        })
+        .catch((error) => {
+          console.error("Error marking notification as read:", error);
+          showNotification("Failed to mark notification as read", "error");
+        });
+    }
   });
 
   const profileBtn = document.querySelector(".profile-btn");

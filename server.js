@@ -33,6 +33,11 @@ app.use("/api/settings", require("./routes/settings"));
 app.use("/api/auth", require("./routes/auth").router);
 app.use("/api/submissions", require("./routes/submissions"));
 
+app.get("/api/welcome", (req, res) => {
+  console.log(`Request received: ${req.method} ${req.path}`);
+  res.json({ message: "Welcome to the Library Management System!" });
+});
+
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",

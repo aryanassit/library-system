@@ -86,6 +86,14 @@ router.post("/", (req, res) => {
       `New book added: ${title} by ${author}`,
     ]);
 
+    // Create notification for book import/addition
+    const notificationsDb = require("../database/submissions_db");
+    notificationsDb.run("INSERT INTO notifications (type, message, related_id) VALUES (?, ?, ?)", [
+      "book_added",
+      `New book "${title}" by ${author} has been added to the library.`,
+      this.lastID
+    ]);
+
     res
       .status(201)
       .json({ id: this.lastID, message: "Book created successfully" });

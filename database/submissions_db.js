@@ -25,6 +25,15 @@ db.serialize(() => {
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
+  db.run(`CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        message TEXT NOT NULL,
+        related_id INTEGER,
+        is_read INTEGER DEFAULT 0,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
   // Add email column if it doesn't exist
   db.run(`ALTER TABLE ratings ADD COLUMN email TEXT`, (err) => {
     if (err && !err.message.includes('duplicate column name')) {
