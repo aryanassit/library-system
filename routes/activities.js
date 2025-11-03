@@ -1,67 +1,35 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
-const { requireAdmin } = require("./auth");
 
 router.get("/", (req, res) => {
-  const limit = parseInt(req.query.limit) || 50;
-
-  db.all(
-    "SELECT * FROM activities ORDER BY timestamp DESC LIMIT ?",
-    [limit],
-    (err, rows) => {
-      if (err) {
-        console.error("Error fetching activities:", err);
-        return res.status(500).json({ error: "Failed to fetch activities" });
-      }
-      res.json(rows);
+  db.all("SELECT * FROM activities ORDER BY timestamp DESC", (err, rows) => {
+    if (err) {
+      console.error("Error fetching activities:", err);
+      return res.status(500).json({ error: "Failed to fetch activities" });
     }
-  );
+    res.json(rows);
+  });
 });
 
 router.post("/", (req, res) => {
   const { description, user_id } = req.body;
-
-  if (!description) {
-    return res.status(400).json({ error: "Description is required" });
-  }
-
-  const query = "INSERT INTO activities (description, user_id) VALUES (?, ?)";
-  const params = [description, user_id || null];
-
-  db.run(query, params, function (err) {
+  db.run("INSERT INTO activities (description, user_id) VALUES (?, ?)", [description, user_id], function (err) {
     if (err) {
-      console.error("Error creating activity:", err);
-      return res.status(500).json({ error: "Failed to create activity" });
+      console.error("Error adding activity:", err);
+      return res.status(500).json({ error: "Failed to add activity" });
     }
-    res
-      .status(201)
-      .json({ id: this.lastID, message: "Activity created successfully" });
+    res.status(201).json({ id: this.lastID });
   });
 });
 
-router.delete("/:id", (req, res) => {
-  const { id } = req.params;
-
-  db.run("DELETE FROM activities WHERE id = ?", [id], function (err) {
-    if (err) {
-      console.error("Error deleting activity:", err);
-      return res.status(500).json({ error: "Failed to delete activity" });
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: "Activity not found" });
-    }
-    res.json({ message: "Activity deleted successfully" });
-  });
-});
-
-router.delete("/", requireAdmin, (req, res) => {
+router.delete("/", (req, res) => {
   db.run("DELETE FROM activities", function (err) {
     if (err) {
-      console.error("Error deleting all activities:", err);
-      return res.status(500).json({ error: "Failed to delete all activities" });
+      console.error("Error deleting activities:", err);
+      return res.status(500).json({ error: "Failed to delete activities" });
     }
-    res.json({ message: "All activities deleted successfully" });
+    res.json({ message: "All activities deleted" });
   });
 });
 

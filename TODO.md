@@ -1,10 +1,18 @@
-# TODO: Add View Button and Update Book List
+# Admin Dashboard Hierarchy Implementation
 
 ## Tasks
-- [x] Update table headers in `public/dashboard.html`: Change "ISBN" to "Issue Year"
-- [x] Modify `loadBooks()` in `public/scripts/dashboard.js`: Update row HTML to show publication_year instead of genre, add view button with eye icon
-- [x] Add new modal HTML in `public/dashboard.html`: Create "view-book-modal" with fields for all book details (title, author, cover image, genre, ISBN, issue date/publication_year, description, book link, status, quantity, created/updated dates)
-- [x] Update event listeners in `public/scripts/dashboard.js`: Add handler for view button to fetch book data, populate modal, and open it
-- [x] Ensure modal closes properly and handles missing data (e.g., placeholder for cover image)
-- [x] Test the view modal functionality
-- [x] Verify table displays correctly with new columns
+- [x] Update database schema to add soft delete columns
+- [x] Modify routes/books.js for soft delete, restore, permanent delete
+- [x] Modify routes/users.js for soft delete, restore, permanent delete
+- [ ] Restructure sidebar HTML with hierarchical navigation
+- [ ] Add content sections for recently removed books and users
+- [ ] Add user profile modal
+- [ ] Update CSS for sub-menu styling
+- [ ] Update dashboard.js for new navigation and functionality
+- [ ] Ensure quick actions only in dashboard section
+- [ ] Test functionality
+
+## Progress
+- Database schema updated with is_deleted and deleted_at columns for books and users tables
+- Routes updated for soft delete (default), permanent delete (?permanent=true), and restore functionality
+- Started implementation

@@ -25,6 +25,9 @@ router.post("/register", async (req, res) => {
       .json({ error: "Password must be at least 8 characters long" });
   }
 
+  // Determine role based on verification code
+  const role = verificationCode.startsWith("ADM") ? "admin" : "user";
+
   try {
     db.get(
       "SELECT id FROM users WHERE email = ?",
@@ -42,8 +45,8 @@ router.post("/register", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const query = `INSERT INTO users (name, email, password_hash, verification_code, role, status)
-                     VALUES (?, ?, ?, ?, 'user', 'active')`;
-        const params = [name, email, hashedPassword, verificationCode];
+                     VALUES (?, ?, ?, ?, ?, 'active')`;
+        const params = [name, email, hashedPassword, verificationCode, role];
 
         db.run(query, params, function (err) {
           if (err) {
@@ -52,12 +55,12 @@ router.post("/register", async (req, res) => {
           }
 
           db.run("INSERT INTO activities (description) VALUES (?)", [
-            `New user registered: ${name} (${email})`,
+            `New user registered: ${name} (${email}) as ${role}`,
           ]);
 
           res
             .status(201)
-            .json({ id: this.lastID, message: "User registered successfully" });
+            .json({ id: this.lastID, message: "User registered successfully", role: role });
         });
       }
     );
@@ -105,7 +108,7 @@ router.post("/login", async (req, res) => {
         req.session.userRole = user.role;
 
         const { password_hash, ...userInfo } = user;
-        res.json({ message: "Login successful", user: userInfo });
+        res.json({ message: "Login successful", user: userInfo, redirectTo: user.role === 'admin' ? '/dashboard.html' : '/user-dashboard.html' });
       }
     );
   } catch (error) {

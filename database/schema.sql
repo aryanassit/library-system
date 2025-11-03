@@ -14,6 +14,8 @@ CREATE TABLE books (
     cover_image TEXT,
     book_link TEXT,
     quantity INTEGER DEFAULT 1,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    deleted_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -27,6 +29,8 @@ CREATE TABLE users (
     verification_code TEXT NOT NULL,
     role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+    is_deleted BOOLEAN DEFAULT FALSE,
+    deleted_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -39,6 +43,21 @@ CREATE TABLE activities (
     user_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Create Borrowings table to track book loans
+CREATE TABLE borrowings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    borrow_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    due_date DATETIME,
+    return_date DATETIME,
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'returned', 'overdue')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
 );
 
 -- Create Settings table for general application settings

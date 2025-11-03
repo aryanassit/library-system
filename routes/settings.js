@@ -1,103 +1,52 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
-const { requireAdmin } = require("./auth");
 
 router.get("/", (req, res) => {
-  db.all("SELECT * FROM settings ORDER BY key", (err, rows) => {
+  db.all("SELECT * FROM settings", (err, rows) => {
     if (err) {
       console.error("Error fetching settings:", err);
       return res.status(500).json({ error: "Failed to fetch settings" });
     }
-
     const settings = {};
-    rows.forEach((row) => {
+    rows.forEach(row => {
       settings[row.key] = row.value;
     });
-
     res.json(settings);
   });
 });
 
-router.get("/:key", (req, res) => {
-  const { key } = req.params;
-  db.get("SELECT * FROM settings WHERE key = ?", [key], (err, row) => {
-    if (err) {
-      console.error("Error fetching setting:", err);
-      return res.status(500).json({ error: "Failed to fetch setting" });
-    }
-    if (!row) {
-      return res.status(404).json({ error: "Setting not found" });
-    }
-    res.json({ [row.key]: row.value });
+router.put("/", (req, res) => {
+  const { maintenanceMode, emailNotifications, maxBorrowDays, maxBooksPerUser } = req.body;
+  const updates = [
+    { key: 'maintenance_mode', value: maintenanceMode ? 'true' : 'false' },
+    { key: 'email_notifications', value: emailNotifications ? 'true' : 'false' },
+    { key: 'max_borrow_days', value: maxBorrowDays.toString() },
+    { key: 'max_books_per_user', value: maxBooksPerUser.toString() }
+  ];
+
+  let completed = 0;
+  updates.forEach(update => {
+    db.run("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", [update.key, update.value], (err) => {
+      if (err) {
+        console.error("Error updating setting:", err);
+        return res.status(500).json({ error: "Failed to update settings" });
+      }
+      completed++;
+      if (completed === updates.length) {
+        res.json({ message: "Settings updated successfully" });
+      }
+    });
   });
 });
 
-router.post("/", (req, res) => {
-  const { key, value } = req.body;
-
-  if (!key || value === undefined) {
-    return res.status(400).json({ error: "Key and value are required" });
-  }
-
-  const query = "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)";
-  const params = [key, value];
-
-  db.run(query, params, function (err) {
-    if (err) {
-      console.error("Error creating/updating setting:", err);
-      return res.status(500).json({ error: "Failed to save setting" });
-    }
-    res.status(201).json({ message: "Setting saved successfully" });
-  });
-});
-
-router.put("/:key", (req, res) => {
-  const { key } = req.params;
-  const { value } = req.body;
-
-  if (value === undefined) {
-    return res.status(400).json({ error: "Value is required" });
-  }
-
-  const query =
-    "UPDATE settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?";
-  const params = [value, key];
-
-  db.run(query, params, function (err) {
-    if (err) {
-      console.error("Error updating setting:", err);
-      return res.status(500).json({ error: "Failed to update setting" });
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: "Setting not found" });
-    }
-    res.json({ message: "Setting updated successfully" });
-  });
-});
-
-router.delete("/:key", (req, res) => {
-  const { key } = req.params;
-
-  db.run("DELETE FROM settings WHERE key = ?", [key], function (err) {
-    if (err) {
-      console.error("Error deleting setting:", err);
-      return res.status(500).json({ error: "Failed to delete setting" });
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: "Setting not found" });
-    }
-    res.json({ message: "Setting deleted successfully" });
-  });
-});
-
-router.delete("/", requireAdmin, (req, res) => {
+router.delete("/", (req, res) => {
   db.run("DELETE FROM settings", function (err) {
     if (err) {
-      console.error("Error deleting all settings:", err);
-      return res.status(500).json({ error: "Failed to delete all settings" });
+      console.error("Error deleting settings:", err);
+      return res.status(500).json({ error: "Failed to delete settings" });
     }
-    res.json({ message: "All settings deleted successfully" });
+    res.json({ message: "All settings deleted" });
   });
 });
 

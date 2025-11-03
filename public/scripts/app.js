@@ -613,7 +613,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 localStorage.setItem("userEmail", data.email);
                 localStorage.setItem("userName", data.name);
-                localStorage.setItem("userRole", data.role);
+                localStorage.setItem("userRole", result.role);
                 checkLoginStatus();
               }
             })
@@ -649,7 +649,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 form.reset();
 
                 localStorage.setItem("userEmail", data.email);
-                localStorage.setItem("userRole", result.role); // Assuming backend returns role
+                localStorage.setItem("userName", result.user.name);
+                localStorage.setItem("userRole", result.user.role);
 
                 checkLoginStatus();
               }
@@ -992,8 +993,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const heroBtn = document.querySelector(".explore-btn");
     if (heroBtn) {
       if (isLoggedIn) {
+        const userRole = localStorage.getItem("userRole");
         heroBtn.textContent = "Open Library";
-        heroBtn.href = "dashboard.html";
+        heroBtn.href = userRole === 'admin' ? "dashboard.html" : "user-dashboard.html";
       } else {
         heroBtn.textContent = "Explore Features";
         heroBtn.href = "#features";
@@ -1008,7 +1010,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function handleGoToLibrary() {
-    window.location.href = "dashboard.html";
+    const userRole = localStorage.getItem("userRole");
+    window.location.href = userRole === 'admin' ? "dashboard.html" : "user-dashboard.html";
   }
 
   function handleProfile() {
