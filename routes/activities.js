@@ -14,13 +14,27 @@ router.get("/", (req, res) => {
 
 router.post("/", (req, res) => {
   const { description, user_id } = req.body;
-  db.run("INSERT INTO activities (description, user_id) VALUES (?, ?)", [description, user_id], function (err) {
-    if (err) {
-      console.error("Error adding activity:", err);
-      return res.status(500).json({ error: "Failed to add activity" });
+  db.run(
+    "INSERT INTO activities (description, user_id) VALUES (?, ?)",
+    [description, user_id],
+    function (err) {
+      if (err) {
+        console.error("Error adding activity:", err);
+        return res.status(500).json({ error: "Failed to add activity" });
+      }
+
+      const notificationsDb = require("../database/submissions_db");
+      notificationsDb.run(
+        "INSERT INTO notifications (type, message) VALUES (?, ?)",
+        [
+          "activity",
+          description,
+        ]
+      );
+
+      res.status(201).json({ id: this.lastID });
     }
-    res.status(201).json({ id: this.lastID });
-  });
+  );
 });
 
 router.delete("/", (req, res) => {

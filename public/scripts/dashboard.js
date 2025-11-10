@@ -14,6 +14,49 @@ function loadActivities() {
     });
 }
 
+function loadNotifications() {
+  fetch("/api/submissions/notifications")
+    .then((response) => response.json())
+    .then((notifications) => {
+      const list = document.querySelector(".notifications-list");
+      if (!list) return;
+      list.innerHTML = "";
+      if (notifications.length === 0) {
+        list.innerHTML = "<p>No notifications yet.</p>";
+      } else {
+        notifications.forEach((notification) => {
+          const item = document.createElement("div");
+          item.className = "notification-item";
+          const date = new Date(notification.timestamp);
+          const formattedDate = date.toLocaleDateString("en-GB");
+          item.innerHTML = `
+              <p>${notification.message}</p>
+              <span>${formattedDate}
+              ${
+                notification.is_read == 0
+                  ? '<button class="btn mark-read-btn" data-id="' +
+                    notification.id +
+                    '"><i class="fa fa-mail-bulk" title="Mark as Read"></i></button>'
+                  : ""
+              }</span>
+            `;
+          list.appendChild(item);
+        });
+      }
+      updateNotificationDot(notifications);
+    })
+    .catch((error) => {
+      console.error("Error loading notifications:", error);
+      showNotification("Failed to load notifications", "error");
+    });
+}
+
+function updateNotificationDot(notifications) {
+  const dot = document.getElementById("notification-dot");
+  const hasUnread = notifications.some(n => n.is_read == 0);
+  dot.style.display = hasUnread ? "block" : "none";
+}
+
 function addActivity(description, user_id = null) {
   fetch("/api/activities", {
     method: "POST",
@@ -25,6 +68,7 @@ function addActivity(description, user_id = null) {
     .then((response) => response.json())
     .then((result) => {
       loadActivities();
+      loadNotifications();
     })
     .catch((error) => {
       console.error("Error adding activity:", error);
@@ -115,7 +159,7 @@ function showConfirm(message, callback) {
     z-index: 1001;
   `;
   modal.innerHTML = `
-    <div style="background: white; padding: 20px; border-radius: 5px; max-width: 400px; text-align: center;">
+    <div style="background: var(--sidebar-hover); padding: 20px; border-radius: 5px; max-width: 400px; text-align: center;">
       <p>${message}</p>
       <button id="confirm-yes" style="margin: 10px; padding: 5px 10px; background: #27ae60; color: white; border: none; border-radius: 3px; cursor: pointer;">Yes</button>
       <button id="confirm-no" style="margin: 10px; padding: 5px 10px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;">No</button>
@@ -134,6 +178,8 @@ function showConfirm(message, callback) {
   });
 }
 
+
+
 function loadBooks() {
   fetch("/api/books")
     .then((response) => response.json())
@@ -150,7 +196,9 @@ function loadBooks() {
             <td>${book.publication_year || "N/A"}</td>
             <td><span class="status ${book.status}">${book.status}</span></td>
             <td>
-              <button class="action-btn-small view-btn" data-id="${book.id}"><i class="fas fa-eye"></i></button>
+              <button class="action-btn-small view-btn" data-id="${
+                book.id
+              }"><i class="fas fa-eye"></i></button>
               <button class="action-btn-small edit-btn" data-id="${
                 book.id
               }"><i class="fas fa-edit"></i></button>
@@ -201,20 +249,49 @@ function loadSettings() {
   fetch("/api/settings")
     .then((response) => response.json())
     .then((settings) => {
-      document.getElementById("maintenance-mode").checked =
-        settings.maintenanceMode || false;
-      document.getElementById("email-notifications").checked =
-        settings.emailNotifications || false;
-      const inputs = document.querySelectorAll('input[type="number"]');
-      if (inputs[0]) inputs[0].value = settings.maxBorrowDays || 14;
-      if (inputs[1]) inputs[1].value = settings.maxBooksPerUser || 5;
+      // General Settings
+      const maintenanceMode = document.getElementById("maintenance-mode");
+      if (maintenanceMode) maintenanceMode.checked = settings.maintenance_mode === "true";
+      const emailNotifications = document.getElementById("email-notifications");
+      if (emailNotifications) emailNotifications.checked = settings.email_notifications === "true";
+      const autoBackupFrequency = document.getElementById("auto-backup-frequency");
+      if (autoBackupFrequency) autoBackupFrequency.value = settings.auto_backup_frequency || "daily";
+      const sessionTimeout = document.getElementById("session-timeout");
+      if (sessionTimeout) sessionTimeout.value = parseInt(settings.session_timeout) || 30;
+
+      // Library Policies
+      const maxBorrowDays = document.getElementById("max-borrow-days");
+      if (maxBorrowDays) maxBorrowDays.value = parseInt(settings.max_borrow_days) || 14;
+      const maxBooksPerUser = document.getElementById("max-books-per-user");
+      if (maxBooksPerUser) maxBooksPerUser.value = parseInt(settings.max_books_per_user) || 5;
+      const overdueFineRate = document.getElementById("overdue-fine-rate");
+      if (overdueFineRate) overdueFineRate.value = parseFloat(settings.overdue_fine_rate) || 0.5;
+      const reservationLimit = document.getElementById("reservation-limit");
+      if (reservationLimit) reservationLimit.value = parseInt(settings.reservation_limit) || 3;
+
+      // Security Settings
+      const passwordMinLength = document.getElementById("password-min-length");
+      if (passwordMinLength) passwordMinLength.value = parseInt(settings.password_min_length) || 8;
+      const userRegistrationApproval = document.getElementById("user-registration-approval");
+      if (userRegistrationApproval) userRegistrationApproval.checked = settings.user_registration_approval === "true";
+
+      // System Management
+      const systemMaintenanceSchedule = document.getElementById("system-maintenance-schedule");
+      if (systemMaintenanceSchedule) systemMaintenanceSchedule.value = settings.system_maintenance_schedule || "weekly";
+      const emailTemplateOverdue = document.getElementById("email-template-overdue");
+      if (emailTemplateOverdue) emailTemplateOverdue.value = settings.email_template_overdue || "default";
+      const apiRateLimit = document.getElementById("api-rate-limit");
+      if (apiRateLimit) apiRateLimit.value = parseInt(settings.api_rate_limit) || 100;
+      const auditLoggingLevel = document.getElementById("audit-logging-level");
+      if (auditLoggingLevel) auditLoggingLevel.value = settings.audit_logging_level || "info";
     })
     .catch((error) => console.error("Error loading settings:", error));
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Hide all modals by default
-  document.querySelectorAll('.modal, .modal-overlay').forEach(modal => modal.style.display = 'none');
+  document
+    .querySelectorAll(".modal, .modal-overlay")
+    .forEach((modal) => (modal.style.display = "none"));
 
   const sidebar = document.querySelector(".sidebar");
   const menuToggle = document.createElement("button");
@@ -281,6 +358,8 @@ document.addEventListener("DOMContentLoaded", function () {
           loadBooks();
         } else if (targetSection === "manage-users") {
           loadUsers();
+        } else if (targetSection === "settings") {
+          loadSettings();
         }
         document.querySelector(".recent-activity").classList.add("hidden");
       }
@@ -290,9 +369,10 @@ document.addEventListener("DOMContentLoaded", function () {
   loadActivities();
   loadBooks();
   loadUsers();
+  loadNotifications();
 
   function updateStats() {
-    fetch("/api/books")
+    fetch("/api/books", { cache: 'no-cache' })
       .then((response) => {
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -307,7 +387,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error fetching books:", error);
       });
 
-    fetch("/api/users")
+    fetch("/api/users", { cache: 'no-cache' })
       .then((response) => {
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -332,7 +412,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error fetching users:", error);
       });
 
-    fetch("/api/submissions/rating")
+    fetch("/api/submissions/rating", { cache: 'no-cache' })
       .then((response) => {
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -358,98 +438,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   updateStats();
-
-  document
-    .querySelector("#total-books-card")
-    .addEventListener("click", function () {
-      navLinks.forEach((l) => l.parentElement.classList.remove("active"));
-      document
-        .querySelector('a[href="#books"]')
-        .parentElement.classList.add("active");
-      sections.forEach((section) => section.classList.add("hidden"));
-      document.getElementById("books-section").classList.remove("hidden");
-      document.querySelector(".recent-activity").classList.add("hidden");
-      loadBooks();
-    });
-
-  document
-    .querySelector("#active-users-card")
-    .addEventListener("click", function () {
-      navLinks.forEach((l) => l.parentElement.classList.remove("active"));
-      document
-        .querySelector('a[href="#users"]')
-        .parentElement.classList.add("active");
-      sections.forEach((section) => section.classList.add("hidden"));
-      document.getElementById("users-section").classList.remove("hidden");
-      document.querySelector(".recent-activity").classList.add("hidden");
-      loadUsers();
-    });
-
-  document
-    .querySelector("#new-registrations-card")
-    .addEventListener("click", function () {
-      navLinks.forEach((l) => l.parentElement.classList.remove("active"));
-      document
-        .querySelector('a[href="#users"]')
-        .parentElement.classList.add("active");
-      sections.forEach((section) => section.classList.add("hidden"));
-      document.getElementById("users-section").classList.remove("hidden");
-      document.querySelector(".recent-activity").classList.add("hidden");
-      loadUsers();
-    });
-
-  const averageRatingCard = document.querySelector("#average-rating-card");
-  if (averageRatingCard) {
-    averageRatingCard.addEventListener("click", function () {
-      fetch("/api/submissions/rating")
-        .then((response) => response.json())
-        .then((ratings) => {
-          const list = document.querySelector(".ratings-list");
-          if (!list) return;
-          list.innerHTML = "";
-          if (ratings.length === 0) {
-            list.innerHTML = "<p>No ratings yet.</p>";
-          } else {
-            ratings.forEach((rating) => {
-              const item = document.createElement("div");
-              item.className = "rating-item";
-              const date = new Date(rating.timestamp);
-              const formattedDate = date.toLocaleDateString("en-GB");
-              const currentUserName =
-                localStorage.getItem("userName") || "Anonymous";
-              const currentUserEmail =
-                localStorage.getItem("userEmail") || "N/A";
-              item.innerHTML = `
-                <div class="rating-compact">
-                  <div class="rating-header">
-                    <span class="rating-user">${currentUserName} (${currentUserEmail})</span>
-                    <span class="rating-date">${formattedDate}</span>
-                  </div>
-                  <div class="rating-stars">${"★".repeat(
-                    rating.stars
-                  )}${"☆".repeat(5 - rating.stars)}</div>
-                  <div class="rating-message">${rating.message}</div>
-                  ${
-                    rating.reply
-                      ? `<div class="rating-reply-display">Reply: ${rating.reply}</div>`
-                      : ""
-                  }
-                  <div class="rating-reply">
-                    <button onclick="replyToRating(${rating.id})">Reply</button>
-                  </div>
-                </div>
-              `;
-              list.appendChild(item);
-            });
-          }
-          openModal("ratings-modal");
-        })
-        .catch((error) => {
-          console.error("Error loading ratings:", error);
-          showNotification("Failed to load ratings", "error");
-        });
-    });
-  }
 
   const actionButtons = document.querySelectorAll(".action-btn");
   actionButtons.forEach((button) => {
@@ -508,7 +496,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   window.addEventListener("click", function (e) {
-    if (e.target.classList.contains("modal") || e.target.classList.contains("modal-overlay")) {
+    if (
+      e.target.classList.contains("modal") ||
+      e.target.classList.contains("modal-overlay")
+    ) {
       e.target.style.display = "none";
     }
   });
@@ -528,7 +519,7 @@ document.addEventListener("DOMContentLoaded", function () {
           genre: data.genre,
           publication_year: parseInt(data.publicationYear) || null,
           description: data.description,
-          status: "available",
+          status: data.status || "Available",
         };
 
         const method = editId ? "PUT" : "POST";
@@ -646,39 +637,61 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
               }
 
-              let books = JSON.parse(localStorage.getItem("books")) || [];
-              let addedCount = 0;
-              importedBooks.forEach((bookData) => {
-                if (bookData.title && bookData.author) {
-                  const newId = Math.max(...books.map((b) => b.id), 0) + 1;
-                  const book = {
-                    id: newId,
-                    title: bookData.title,
-                    author: bookData.author,
-                    genre: bookData.genre || "",
-                    isbn: bookData.isbn || "",
-                    publication_year: bookData.publication_year || null,
-                    description: bookData.description || "",
-                    status: "available",
-                  };
-                  books.push(book);
-                  addedCount++;
-                }
-              });
-
-              localStorage.setItem("books", JSON.stringify(books));
-              addActivity(`Imported ${addedCount} books from file`);
-              showNotification(`Successfully imported ${addedCount} books!`);
-              loadBooks();
-              updateStats();
+              // Send to API
+              fetch("/api/books/import", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ books: importedBooks }),
+              })
+                .then((response) => {
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+                  return response.json();
+                })
+                .then((result) => {
+                  if (result.errors && result.errors.length > 0) {
+                    showNotification(
+                      `Imported ${result.addedCount} books. Errors: ${result.errors.join(", ")}`,
+                      "error"
+                    );
+                  } else {
+                    showNotification(
+                      `Successfully imported ${result.addedCount} books!`
+                    );
+                  }
+                  loadBooks();
+                  updateStats();
+                  loadNotifications();
+                  // Close modal after import
+                  const modal = document.getElementById("import-books-modal");
+                  if (modal) modal.style.display = "none";
+                })
+                .catch((error) => {
+                  console.error("Error importing books:", error);
+                  showNotification("Failed to import books", "error");
+                  // Close modal on error too
+                  const modal = document.getElementById("import-books-modal");
+                  if (modal) modal.style.display = "none";
+                });
             } catch (error) {
               showNotification(
                 `Error importing books: ${error.message}`,
                 "error"
               );
+              // Close modal on parse error
+              const modal = document.getElementById("import-books-modal");
+              if (modal) modal.style.display = "none";
             }
           };
           reader.readAsText(file);
+        } else {
+          showNotification("Please select a file to import", "error");
+          // Close modal if no file
+          const modal = document.getElementById("import-books-modal");
+          if (modal) modal.style.display = "none";
         }
       }
 
@@ -697,36 +710,6 @@ document.addEventListener("DOMContentLoaded", function () {
     loadNotifications();
     openModal("notifications-modal");
   });
-
-  function loadNotifications() {
-    fetch("/api/submissions/notifications")
-      .then((response) => response.json())
-      .then((notifications) => {
-        const list = document.querySelector(".notifications-list");
-        if (!list) return;
-        list.innerHTML = "";
-        if (notifications.length === 0) {
-          list.innerHTML = "<p>No notifications yet.</p>";
-        } else {
-          notifications.forEach((notification) => {
-            const item = document.createElement("div");
-            item.className = "notification-item";
-            const date = new Date(notification.timestamp);
-            const formattedDate = date.toLocaleDateString("en-GB");
-            item.innerHTML = `
-              <p>${notification.message}</p>
-              <span>${formattedDate}</span>
-              ${notification.is_read == 0 ? '<button class="mark-read-btn" data-id="' + notification.id + '">Mark as Read</button>' : ''}
-            `;
-            list.appendChild(item);
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Error loading notifications:", error);
-        showNotification("Failed to load notifications", "error");
-      });
-  }
 
   document.addEventListener("click", function (e) {
     if (e.target.classList.contains("mark-read-btn")) {
@@ -802,15 +785,27 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/api/books/${id}`)
           .then((response) => response.json())
           .then((book) => {
-            document.getElementById("book-title").textContent = book.title || "N/A";
-            document.getElementById("book-author").textContent = book.author || "N/A";
-            document.getElementById("book-genre").textContent = book.genre || "N/A";
-            document.getElementById("book-isbn").textContent = book.isbn || "N/A";
-            document.getElementById("book-issue-date").textContent = book.publication_year || "N/A";
-            document.getElementById("book-description").textContent = book.description || "N/A";
-            document.getElementById("book-status").textContent = book.status || "N/A";
-            document.getElementById("book-updated-at").textContent = book.updated_at ? new Date(book.updated_at).toLocaleDateString() : "N/A";
-            document.getElementById("book-cover-image").src = book.cover_image || "https://via.placeholder.com/150x200/cccccc/000000?text=No+Cover";
+            document.getElementById("book-title").textContent =
+              book.title || "N/A";
+            document.getElementById("book-author").textContent =
+              book.author || "N/A";
+            document.getElementById("book-genre").textContent =
+              book.genre || "N/A";
+            document.getElementById("book-isbn").textContent =
+              book.isbn || "N/A";
+            document.getElementById("book-issue-date").textContent =
+              book.publication_year || "N/A";
+            document.getElementById("book-description").textContent =
+              book.description || "N/A";
+            document.getElementById("book-status").textContent =
+              book.status || "N/A";
+            document.getElementById("book-updated-at").textContent =
+              book.updated_at
+                ? new Date(book.updated_at).toLocaleDateString()
+                : "N/A";
+            document.getElementById("book-cover-image").src =
+              book.cover_image ||
+              "https://via.placeholder.com/150x200/cccccc/000000?text=No+Cover";
             openModal("view-book-modal");
           })
           .catch((error) => {
@@ -832,6 +827,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 item.publication_year || "";
               modal.querySelector('[name="description"]').value =
                 item.description || "";
+              modal.querySelector('[name="status"]').value = item.status || "Available";
               let editIdInput = modal.querySelector("#edit-id");
               if (!editIdInput) {
                 editIdInput = document.createElement("input");
@@ -1003,9 +999,9 @@ document.addEventListener("DOMContentLoaded", function () {
     rows.forEach((row) => {
       const statusCell = row.cells[3].textContent.toLowerCase();
       let show = true;
-      if (filterValue === "available" && !statusCell.includes("available"))
+      if (filterValue === "Available" && !statusCell.includes("Available"))
         show = false;
-      if (filterValue === "borrowed" && !statusCell.includes("borrowed"))
+      if (filterValue === "Borrowed" && !statusCell.includes("Borrowed"))
         show = false;
       row.style.display = show ? "" : "none";
     });
@@ -1192,6 +1188,50 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const clearRecentActivitiesBtn = document.querySelector(".clear-recent-activities-btn");
+  if (clearRecentActivitiesBtn) {
+    clearRecentActivitiesBtn.addEventListener("click", function () {
+      showConfirm("Are you sure you want to clear all activities?", (confirmed) => {
+        if (confirmed) {
+          fetch("/api/activities", {
+            method: "DELETE",
+          })
+          .then((response) => response.json())
+          .then((result) => {
+            loadActivities();
+            showNotification("All activities cleared successfully");
+          })
+          .catch((error) => {
+            console.error("Error clearing activities:", error);
+            showNotification("Failed to clear activities", "error");
+          });
+        }
+      });
+    });
+  }
+
+  const clearActivitiesBtn = document.querySelector(".clear-activities-btn");
+  if (clearActivitiesBtn) {
+    clearActivitiesBtn.addEventListener("click", function () {
+      showConfirm("Are you sure you want to clear all activities?", (confirmed) => {
+        if (confirmed) {
+          fetch("/api/activities", {
+            method: "DELETE",
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              loadActivities();
+              showNotification("All activities cleared successfully");
+            })
+            .catch((error) => {
+              console.error("Error clearing activities:", error);
+              showNotification("Failed to clear activities", "error");
+            });
+        }
+      });
+    });
+  }
+
   const activityItems = document.querySelectorAll(".activity-item");
   activityItems.forEach((item) => {
     item.addEventListener("click", function () {
@@ -1232,13 +1272,15 @@ document.addEventListener("DOMContentLoaded", function () {
     passwordConfirmForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const password = document.getElementById("confirm-password").value;
+      const verificationCode = document.getElementById("confirm-verification-code").value;
 
       fetch("/api/auth/verify-admin-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ password }),
+        credentials: "include",
+        body: JSON.stringify({ password, verificationCode }),
       })
         .then((response) => response.json())
         .then((result) => {
@@ -1246,8 +1288,9 @@ document.addEventListener("DOMContentLoaded", function () {
             performAction(currentAction);
             closeModal("password-confirm-modal");
             document.getElementById("confirm-password").value = "";
+            document.getElementById("confirm-verification-code").value = "";
           } else {
-            showNotification("Incorrect password", "error");
+            showNotification("Incorrect password or verification code", "error");
           }
         })
         .catch((error) => {

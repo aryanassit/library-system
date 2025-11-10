@@ -25,7 +25,6 @@ router.post("/register", async (req, res) => {
       .json({ error: "Password must be at least 8 characters long" });
   }
 
-  // Determine role based on verification code
   const role = verificationCode.startsWith("ADM") ? "admin" : "user";
 
   try {
@@ -60,7 +59,11 @@ router.post("/register", async (req, res) => {
 
           res
             .status(201)
-            .json({ id: this.lastID, message: "User registered successfully", role: role });
+            .json({
+              id: this.lastID,
+              message: "User registered successfully",
+              role: role,
+            });
         });
       }
     );
@@ -103,12 +106,16 @@ router.post("/login", async (req, res) => {
           return res.status(401).json({ error: "Invalid verification code" });
         }
 
-        // Set session for authenticated user
         req.session.userId = user.id;
         req.session.userRole = user.role;
 
         const { password_hash, ...userInfo } = user;
-        res.json({ message: "Login successful", user: userInfo, redirectTo: user.role === 'admin' ? '/dashboard.html' : '/user-dashboard.html' });
+        res.json({
+          message: "Login successful",
+          user: userInfo,
+          redirectTo:
+            user.role === "admin" ? "/dashboard.html" : "/user-dashboard.html",
+        });
       }
     );
   } catch (error) {
@@ -140,57 +147,51 @@ router.post("/logout", (req, res) => {
       console.error("Error destroying session:", err);
       return res.status(500).json({ error: "Failed to logout" });
     }
-    res.clearCookie("connect.sid"); // Clear session cookie
+    res.clearCookie("connect.sid");
     res.json({ message: "Logged out successfully" });
   });
 });
 
-// Middleware to check if user is authenticated and is admin
 function requireAdmin(req, res, next) {
-  if (!req.session.userId) {
-    return res.status(401).json({ error: "Authentication required" });
+  if (!req.session.userId || req.session.userRole !== "admin") {
+    return res.status(403).json({ error: "Admin access required" });
   }
 
-  db.get("SELECT role FROM users WHERE id = ?", [req.session.userId], (err, user) => {
-    if (err) {
-      console.error("Error checking user role:", err);
-      return res.status(500).json({ error: "Failed to verify user role" });
-    }
-
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ error: "Admin access required" });
-    }
-
-    next();
-  });
+  next();
 }
 
-// Endpoint to verify admin password for bulk operations
 router.post("/verify-admin-password", requireAdmin, async (req, res) => {
-  const { password } = req.body;
+  const { password, verificationCode } = req.body;
 
-  if (!password) {
-    return res.status(400).json({ error: "Password is required" });
+  if (!password || !verificationCode) {
+    return res.status(400).json({ error: "Password and verification code are required" });
   }
 
   try {
-    db.get("SELECT password_hash FROM users WHERE id = ?", [req.session.userId], async (err, user) => {
-      if (err) {
-        console.error("Error fetching user:", err);
-        return res.status(500).json({ error: "Failed to verify password" });
-      }
+    db.get(
+      "SELECT password_hash, verification_code FROM users WHERE id = ?",
+      [req.session.userId],
+      async (err, user) => {
+        if (err) {
+          console.error("Error fetching user:", err);
+          return res.status(500).json({ error: "Failed to verify password" });
+        }
 
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
+        }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: "Incorrect password" });
-      }
+        const isPasswordValid = await bcrypt.compare(
+          password,
+          user.password_hash
+        );
+        if (!isPasswordValid || user.verification_code !== verificationCode) {
+          return res.status(401).json({ error: "Incorrect password or verification code" });
+        }
 
-      res.json({ message: "Password verified successfully" });
-    });
+        res.json({ message: "Password verified successfully" });
+      }
+    );
   } catch (error) {
     console.error("Error verifying password:", error);
     res.status(500).json({ error: "Failed to verify password" });

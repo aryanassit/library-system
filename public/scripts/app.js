@@ -1,9 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
   checkLoginStatus();
 
-  const logoutDropdown = document.querySelector(".dropdown-item.logout-dropdown");
-  const profileDropdown = document.querySelector(".dropdown-item.profile-dropdown");
-  const settingsDropdown = document.querySelector(".dropdown-item.settings-dropdown");
+  const logoutDropdown = document.querySelector(
+    ".dropdown-item.logout-dropdown"
+  );
+  const profileDropdown = document.querySelector(
+    ".dropdown-item.profile-dropdown"
+  );
+  const settingsDropdown = document.querySelector(
+    ".dropdown-item.settings-dropdown"
+  );
   const goToLibraryBtn = document.querySelector(".go-to-library-btn");
   const profileBtn = document.querySelector(".profile-btn");
   const dropdownMenu = document.querySelector(".dropdown-menu");
@@ -136,58 +142,75 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById(`${tab}-tab`).classList.add("active");
   }
 
-  // Add event listeners for real-time validation in registration form
-  const registerForm = document.querySelector('#register-tab form');
+  const registerForm = document.querySelector("#register-tab form");
   if (registerForm) {
-    const inputs = registerForm.querySelectorAll('input');
-    inputs.forEach(input => {
-      input.addEventListener('input', () => {
-        let errorId = '';
+    const inputs = registerForm.querySelectorAll("input");
+    inputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        let errorId = "";
         let isValid = false;
-        let errorMessage = '';
+        let errorMessage = "";
 
         switch (input.name) {
-          case 'name':
-            errorId = 'username-error';
+          case "name":
+            errorId = "username-error";
             isValid = input.value.trim() && !/\s/.test(input.value);
-            errorMessage = isValid ? '' : "Username is required and cannot contain spaces.";
+            errorMessage = isValid
+              ? ""
+              : "Username is required and cannot contain spaces.";
             break;
-          case 'email':
-            errorId = 'email-error';
+          case "email":
+            errorId = "email-error";
             const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
             isValid = gmailRegex.test(input.value);
-            errorMessage = isValid ? '' : "Please enter a valid Gmail address (e.g., example@gmail.com).";
+            errorMessage = isValid
+              ? ""
+              : "Please enter a valid Gmail address (e.g., example@gmail.com).";
             break;
-          case 'password':
-            errorId = 'password-error';
+          case "password":
+            errorId = "password-error";
             isValid = /(?=.*[a-zA-Z])(?=.*\d)(?=.*\W)/.test(input.value);
-            errorMessage = isValid ? '' : "Password must contain at least one letter, one number, and one symbol.";
+            errorMessage = isValid
+              ? ""
+              : "Password must contain at least one letter, one number, and one symbol.";
             break;
-          case 'confirmPassword':
-            errorId = 'confirm-password-error';
-            const password = registerForm.querySelector('input[name="password"]');
-            isValid = input.value.trim() && password && password.value.trim() && input.value === password.value;
-            errorMessage = isValid ? '' : "Passwords do not match.";
+          case "confirmPassword":
+            errorId = "confirm-password-error";
+            const password = registerForm.querySelector(
+              'input[name="password"]'
+            );
+            isValid =
+              input.value.trim() &&
+              password &&
+              password.value.trim() &&
+              input.value === password.value;
+            errorMessage = isValid ? "" : "Passwords do not match.";
             break;
-          case 'cardNumber':
-            errorId = 'card-number-error';
+          case "cardNumber":
+            errorId = "card-number-error";
             isValid = /^\d{16}$/.test(input.value);
-            errorMessage = isValid ? '' : "Card number must be exactly 16 digits.";
+            errorMessage = isValid
+              ? ""
+              : "Card number must be exactly 16 digits.";
             break;
-          case 'expiry':
-            errorId = 'expiry-error';
+          case "expiry":
+            errorId = "expiry-error";
             isValid = /^(0[1-9]|1[0-2])\/\d{2}$/.test(input.value);
-            errorMessage = isValid ? '' : "Expiry date must be in MM/YY format.";
+            errorMessage = isValid
+              ? ""
+              : "Expiry date must be in MM/YY format.";
             break;
-          case 'cvv':
-            errorId = 'cvv-error';
+          case "cvv":
+            errorId = "cvv-error";
             isValid = /^\d{3}$/.test(input.value);
-            errorMessage = isValid ? '' : "CVV must be exactly 3 digits.";
+            errorMessage = isValid ? "" : "CVV must be exactly 3 digits.";
             break;
-          case 'verificationCode':
-            errorId = 'register-code-error';
+          case "verificationCode":
+            errorId = "register-code-error";
             isValid = /^(ADM|USR)\d{3}-[A-Z]{3}$/.test(input.value);
-            errorMessage = isValid ? '' : "Verification code must be in ADM123-XYZ or USR123-XYZ format.";
+            errorMessage = isValid
+              ? ""
+              : "Verification code must be in ADM123-XYZ or USR123-XYZ format.";
             break;
         }
 
@@ -198,37 +221,40 @@ document.addEventListener("DOMContentLoaded", function () {
             showError(errorId, errorMessage);
           }
         }
-        hideError('general-error');
-        hideError('success-message');
+        hideError("general-error");
+        hideError("success-message");
       });
     });
   }
 
-  // Add event listeners for login form
-  const loginForm = document.querySelector('#login-tab form');
+  const loginForm = document.querySelector("#login-tab form");
   if (loginForm) {
-    const inputs = loginForm.querySelectorAll('input');
-    inputs.forEach(input => {
-      input.addEventListener('input', () => {
-        let errorId = '';
+    const inputs = loginForm.querySelectorAll("input");
+    inputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        let errorId = "";
         let isValid = false;
-        let errorMessage = '';
+        let errorMessage = "";
 
         switch (input.name) {
-          case 'email':
-            errorId = 'login-email-error';
+          case "email":
+            errorId = "login-email-error";
             isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
-            errorMessage = isValid ? '' : "Please enter a valid email address.";
+            errorMessage = isValid ? "" : "Please enter a valid email address.";
             break;
-          case 'password':
-            errorId = 'login-password-error';
+          case "password":
+            errorId = "login-password-error";
             isValid = input.value.length >= 8;
-            errorMessage = isValid ? '' : "Password must be at least 8 characters long.";
+            errorMessage = isValid
+              ? ""
+              : "Password must be at least 8 characters long.";
             break;
-          case 'verificationCode':
-            errorId = 'login-code-error';
+          case "verificationCode":
+            errorId = "login-code-error";
             isValid = /^(ADM|USR)\d{3}-[A-Z]{3}$/.test(input.value);
-            errorMessage = isValid ? '' : "Verification code must be in ADM123-XYZ or USR123-XYZ format.";
+            errorMessage = isValid
+              ? ""
+              : "Verification code must be in ADM123-XYZ or USR123-XYZ format.";
             break;
         }
 
@@ -239,8 +265,8 @@ document.addEventListener("DOMContentLoaded", function () {
             showError(errorId, errorMessage);
           }
         }
-        hideError('general-error');
-        hideError('success-message');
+        hideError("general-error");
+        hideError("success-message");
       });
     });
   }
@@ -250,14 +276,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const form = button.closest("form");
       const username = form.querySelector('input[name="name"]');
       const password = form.querySelector('input[name="password"]');
-      const confirmPassword = form.querySelector('input[name="confirmPassword"]');
+      const confirmPassword = form.querySelector(
+        'input[name="confirmPassword"]'
+      );
       const cardNumber = form.querySelector('input[name="cardNumber"]');
       const expiry = form.querySelector('input[name="expiry"]');
       const cvv = form.querySelector('input[name="cvv"]');
       const role = form.querySelector('input[name="role"]:checked');
       const emailInput = form.querySelector('input[name="email"]');
 
-      // First, check if user already exists
       if (emailInput && emailInput.value.trim()) {
         try {
           const checkResponse = await fetch("/api/auth/check-user", {
@@ -272,19 +299,24 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           const checkResult = await checkResponse.json();
           if (checkResult.exists) {
-            showError("email-error", "User/Admin with this email already exists. Please use a different email or try login.");
-            return; // Do not proceed with payment if user exists
+            showError(
+              "email-error",
+              "User/Admin with this email already exists. Please use a different email or try login."
+            );
+            return;
           }
         } catch (error) {
           console.error("Error checking user existence:", error);
-          showError("general-error", "Failed to verify user. Please try again.");
+          showError(
+            "general-error",
+            "Failed to verify user. Please try again."
+          );
           return;
         }
       }
 
       let paymentValid = true;
 
-      // Check required fields before payment
       if (!username || !username.value.trim()) {
         paymentValid = false;
         showError("username-error", "Username is required.");
@@ -344,11 +376,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (!paymentValid) {
-        return; // Do not proceed if validations fail
+        return;
       }
 
-      // Generate role-specific verification code
-      const rolePrefix = role.value === 'admin' ? 'ADM' : 'USR';
+      const rolePrefix = role.value === "admin" ? "ADM" : "USR";
       const numbers = Math.floor(100 + Math.random() * 900);
       const letters2 =
         String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
@@ -356,7 +387,6 @@ document.addEventListener("DOMContentLoaded", function () {
         String.fromCharCode(65 + Math.floor(Math.random() * 26));
       generatedCode = `${rolePrefix}${numbers}-${letters2}`;
 
-      // Mark payment as completed
       paymentCompleted = true;
 
       if (emailInput && emailInput.value) {
@@ -370,21 +400,18 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       hideError("register-code-error");
 
-      // Animate the pay button to show "Sent" with green background and tick
       button.innerHTML = '<i class="fas fa-check"></i> Sent';
       button.style.backgroundColor = "var(--success)";
       button.disabled = true;
 
-      // After 2-3 seconds, change to "Send again" and enable after 30 seconds with countdown
       setTimeout(() => {
         button.innerHTML = "Send again";
         button.style.backgroundColor = "";
-        button.disabled = true; // Keep disabled until 30 seconds
+        button.disabled = true;
 
-        // Show countdown timer below the button
-        const timerSpan = document.getElementById('countdown-timer');
-        timerSpan.style.visibility = 'visible';
-        timerSpan.style.fontSize = '12px';
+        const timerSpan = document.getElementById("countdown-timer");
+        timerSpan.style.visibility = "visible";
+        timerSpan.style.fontSize = "12px";
 
         let countdown = 30;
         timerSpan.textContent = `Send again in: ${countdown} seconds`;
@@ -394,16 +421,16 @@ document.addEventListener("DOMContentLoaded", function () {
           timerSpan.textContent = `Not received? Send again in: ${countdown} seconds`;
           if (countdown <= 0) {
             clearInterval(countdownInterval);
-            timerSpan.style.visibility = 'hidden';
-            timerSpan.textContent = '';
+            timerSpan.style.visibility = "hidden";
+            timerSpan.textContent = "";
             button.disabled = false;
           }
         }, 1000);
 
         sendAgainTimeout = setTimeout(() => {
           button.disabled = false;
-        }, 30000); // Enable after 30 seconds
-      }, 2500); // 2.5 seconds for "Sent"
+        }, 30000);
+      }, 2500);
     });
   });
 
@@ -424,7 +451,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (form.closest("#register-tab")) {
-        // Check if user already exists
         const emailInput = form.querySelector('input[type="email"]');
         if (emailInput && emailInput.value) {
           try {
@@ -439,18 +465,27 @@ document.addEventListener("DOMContentLoaded", function () {
               const checkResult = await checkResponse.json();
               if (checkResult.exists) {
                 isValid = false;
-                showError("email-error", "User with this email already exists. Please use a different email or login.");
+                showError(
+                  "email-error",
+                  "User with this email already exists. Please use a different email or login."
+                );
               } else {
                 hideError("email-error");
               }
             } else {
               isValid = false;
-              showError("general-error", "Failed to verify user. Please try again.");
+              showError(
+                "general-error",
+                "Failed to verify user. Please try again."
+              );
             }
           } catch (error) {
             console.error("Error checking user existence:", error);
             isValid = false;
-            showError("general-error", "Failed to verify user. Please try again.");
+            showError(
+              "general-error",
+              "Failed to verify user. Please try again."
+            );
           }
         }
 
@@ -463,7 +498,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const password = form.querySelector('input[name="password"]');
-        const confirmPassword = form.querySelector('input[name="confirmPassword"]');
+        const confirmPassword = form.querySelector(
+          'input[name="confirmPassword"]'
+        );
         if (
           password &&
           !/(?=.*[a-zA-Z])(?=.*\d)(?=.*\W)/.test(password.value)
@@ -788,7 +825,10 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((result) => {
           if (result.error) {
-            showError("general-error", "Error submitting rating: " + result.error);
+            showError(
+              "general-error",
+              "Error submitting rating: " + result.error
+            );
             ratingSubmitBtn.innerHTML = "Submit Rating";
             ratingSubmitBtn.disabled = false;
           } else {
@@ -806,7 +846,10 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch((error) => {
           console.error("Rating submission error:", error);
-          showError("general-error", "Failed to submit rating. Please try again.");
+          showError(
+            "general-error",
+            "Failed to submit rating. Please try again."
+          );
           ratingSubmitBtn.innerHTML = "Submit Rating";
           ratingSubmitBtn.disabled = false;
         });
@@ -820,32 +863,32 @@ document.addEventListener("DOMContentLoaded", function () {
     'input[placeholder="Your Email"]'
   );
 
-  // Add event listeners for real-time validation in contact form
   if (contactForm) {
-    const inputs = contactForm.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-      input.addEventListener('input', () => {
-        let errorId = '';
+    const inputs = contactForm.querySelectorAll("input, textarea");
+    inputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        let errorId = "";
         let isValid = false;
-        let errorMessage = '';
+        let errorMessage = "";
 
         switch (input.placeholder) {
-          case 'Your Name':
-            errorId = 'contact-name-error';
-            isValid = input.value.trim() !== '';
-            errorMessage = isValid ? '' : "Name is required.";
+          case "Your Name":
+            errorId = "contact-name-error";
+            isValid = input.value.trim() !== "";
+            errorMessage = isValid ? "" : "Name is required.";
             break;
-          case 'Your Email':
-            errorId = 'contact-email-error';
+          case "Your Email":
+            errorId = "contact-email-error";
             const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
             isValid = gmailRegex.test(input.value);
-            errorMessage = isValid ? '' : "Please enter a valid Gmail address (e.g., example@gmail.com).";
+            errorMessage = isValid
+              ? ""
+              : "Please enter a valid Gmail address (e.g., example@gmail.com).";
             break;
-          case 'Your Message':
-            // Message validation is handled in submit, but we can clear errors
-            errorId = 'contact-message-error'; // Assuming we add this span
-            isValid = input.value.trim() !== '';
-            errorMessage = isValid ? '' : "Message is required.";
+          case "Your Message":
+            errorId = "contact-message-error";
+            isValid = input.value.trim() !== "";
+            errorMessage = isValid ? "" : "Message is required.";
             break;
         }
 
@@ -856,8 +899,8 @@ document.addEventListener("DOMContentLoaded", function () {
             showError(errorId, errorMessage);
           }
         }
-        hideError('general-error');
-        hideError('success-message');
+        hideError("general-error");
+        hideError("success-message");
       });
     });
   }
@@ -901,7 +944,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
       if (!gmailRegex.test(email)) {
-        showError("contact-email-error", "Please enter a valid Gmail address (e.g., example@gmail.com).");
+        showError(
+          "contact-email-error",
+          "Please enter a valid Gmail address (e.g., example@gmail.com)."
+        );
         return;
       }
 
@@ -927,7 +973,10 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((result) => {
           if (result.error) {
-            showError("general-error", "Error submitting contact form: " + result.error);
+            showError(
+              "general-error",
+              "Error submitting contact form: " + result.error
+            );
             contactSubmitBtn.innerHTML = "Send Message";
             contactSubmitBtn.disabled = false;
           } else {
@@ -943,7 +992,10 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch((error) => {
           console.error("Contact form submission error:", error);
-          showError("general-error", "Failed to send message. Please try again.");
+          showError(
+            "general-error",
+            "Failed to send message. Please try again."
+          );
           contactSubmitBtn.innerHTML = "Send Message";
           contactSubmitBtn.disabled = false;
         });
@@ -966,16 +1018,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (profilePic) {
         const initial = userEmail.charAt(0).toUpperCase();
-        // Generate a simple placeholder image using canvas
-        const canvas = document.createElement('canvas');
+
+        const canvas = document.createElement("canvas");
         canvas.width = 32;
         canvas.height = 32;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#58a6ff';
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#58a6ff";
         ctx.fillRect(0, 0, 32, 32);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '20px Arial';
-        ctx.textAlign = 'center';
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "20px Arial";
+        ctx.textAlign = "center";
         ctx.fillText(initial, 16, 24);
         profilePic.src = canvas.toDataURL();
       }
@@ -995,7 +1047,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (isLoggedIn) {
         const userRole = localStorage.getItem("userRole");
         heroBtn.textContent = "Open Library";
-        heroBtn.href = userRole === 'admin' ? "dashboard.html" : "user-dashboard.html";
+        heroBtn.href =
+          userRole === "admin" ? "dashboard.html" : "user-dashboard.html";
       } else {
         heroBtn.textContent = "Explore Features";
         heroBtn.href = "#features";
@@ -1011,16 +1064,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function handleGoToLibrary() {
     const userRole = localStorage.getItem("userRole");
-    window.location.href = userRole === 'admin' ? "dashboard.html" : "user-dashboard.html";
+    window.location.href =
+      userRole === "admin" ? "dashboard.html" : "user-dashboard.html";
   }
 
   function handleProfile() {
-    // Navigate to profile page or open profile modal
-    window.location.href = "profile.html"; // Assuming a profile page exists
+    window.location.href = "profile.html";
   }
 
   function handleSettings() {
-    // Navigate to settings page or open settings modal
-    window.location.href = "settings.html"; // Assuming a settings page exists
+    window.location.href = "settings.html";
   }
 });

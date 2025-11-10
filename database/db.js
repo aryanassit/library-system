@@ -16,25 +16,27 @@ function initializeDatabase() {
   const schemaPath = path.join(__dirname, "schema.sql");
   const schema = fs.readFileSync(schemaPath, "utf8");
 
-  // Check if tables already exist
-  db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='books'", (err, row) => {
-    if (err) {
-      console.error("Error checking database:", err.message);
-      return;
-    }
+  db.get(
+    "SELECT name FROM sqlite_master WHERE type='table' AND name='books'",
+    (err, row) => {
+      if (err) {
+        console.error("Error checking database:", err.message);
+        return;
+      }
 
-    if (row) {
-      console.log("Database already initialized.");
-    } else {
-      db.exec(schema, (err) => {
-        if (err) {
-          console.error("Error initializing database:", err.message);
-        } else {
-          console.log("Database initialized successfully.");
-        }
-      });
+      if (row) {
+        console.log("Database already initialized.");
+      } else {
+        db.exec(schema, (err) => {
+          if (err) {
+            console.error("Error initializing database:", err.message);
+          } else {
+            console.log("Database initialized successfully.");
+          }
+        });
+      }
     }
-  });
+  );
 }
 
 module.exports = db;

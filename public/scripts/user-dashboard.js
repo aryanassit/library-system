@@ -138,9 +138,15 @@ function loadBooks() {
             <td>${book.publication_year || "N/A"}</td>
             <td><span class="status ${book.status}">${book.status}</span></td>
             <td>
-              <button class="action-btn-small view-btn" data-id="${book.id}"><i class="fas fa-eye"></i></button>
-              <button class="action-btn-small borrow-btn" data-id="${book.id}"><i class="fas fa-hand-holding"></i></button>
-              <button class="action-btn-small wishlist-btn" data-id="${book.id}"><i class="fas fa-heart"></i></button>
+              <button class="action-btn-small view-btn" data-id="${
+                book.id
+              }"><i class="fas fa-eye"></i></button>
+              <button class="action-btn-small borrow-btn" data-id="${
+                book.id
+              }"><i class="fas fa-hand-holding"></i></button>
+              <button class="action-btn-small wishlist-btn" data-id="${
+                book.id
+              }"><i class="fas fa-heart"></i></button>
             </td>
           `;
         tbody.appendChild(row);
@@ -185,10 +191,14 @@ function loadBorrowedBooks() {
             <div class="book-info">
               <h3>${book.title}</h3>
               <p>by ${book.author}</p>
-              <p>Borrowed on: ${new Date(book.borrow_date).toLocaleDateString()}</p>
+              <p>Borrowed on: ${new Date(
+                book.borrow_date
+              ).toLocaleDateString()}</p>
               <p>Due date: ${new Date(book.due_date).toLocaleDateString()}</p>
             </div>
-            <button class="btn return-book-btn" data-id="${book.id}">Return Book</button>
+            <button class="btn return-book-btn" data-id="${
+              book.id
+            }">Return Book</button>
           `;
           list.appendChild(item);
         });
@@ -201,8 +211,9 @@ function loadBorrowedBooks() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Hide all modals by default
-  document.querySelectorAll('.modal, .modal-overlay').forEach(modal => modal.style.display = 'none');
+  document
+    .querySelectorAll(".modal, .modal-overlay")
+    .forEach((modal) => (modal.style.display = "none"));
 
   const sidebar = document.querySelector(".sidebar");
   const menuToggle = document.createElement("button");
@@ -289,11 +300,14 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then((books) => {
         const totalBooks = books.length;
-        const availableBooks = books.filter(book => book.status === 'available').length;
+        const availableBooks = books.filter(
+          (book) => book.status === "available"
+        ).length;
         document.querySelector("#total-books-card .stat-info h3").textContent =
           totalBooks.toLocaleString();
-        document.querySelector("#available-books-card .stat-info h3").textContent =
-          availableBooks.toLocaleString();
+        document.querySelector(
+          "#available-books-card .stat-info h3"
+        ).textContent = availableBooks.toLocaleString();
       })
       .catch((error) => {
         console.error("Error fetching books:", error);
@@ -303,15 +317,17 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((books) => {
         const borrowedCount = books.length;
-        document.querySelector("#borrowed-books-card .stat-info h3").textContent =
-          borrowedCount.toLocaleString();
+        document.querySelector(
+          "#borrowed-books-card .stat-info h3"
+        ).textContent = borrowedCount.toLocaleString();
       })
       .catch((error) => {
         console.error("Error fetching borrowed books:", error);
-        document.querySelector("#borrowed-books-card .stat-info h3").textContent = "0";
+        document.querySelector(
+          "#borrowed-books-card .stat-info h3"
+        ).textContent = "0";
       });
 
-    // For wishlist, we might need to implement a wishlist API
     document.querySelector("#wishlist-card .stat-info h3").textContent = "0";
   }
 
@@ -341,7 +357,13 @@ document.addEventListener("DOMContentLoaded", function () {
             item.innerHTML = `
               <p>${notification.message}</p>
               <span>${formattedDate}</span>
-              ${notification.is_read == 0 ? '<button class="mark-read-btn" data-id="' + notification.id + '">Mark as Read</button>' : ''}
+              ${
+                notification.is_read == 0
+                  ? '<button class="mark-read-btn" data-id="' +
+                    notification.id +
+                    '">Mark as Read</button>'
+                  : ""
+              }
             `;
             list.appendChild(item);
           });
@@ -426,15 +448,27 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/api/books/${id}`)
           .then((response) => response.json())
           .then((book) => {
-            document.getElementById("book-title").textContent = book.title || "N/A";
-            document.getElementById("book-author").textContent = book.author || "N/A";
-            document.getElementById("book-genre").textContent = book.genre || "N/A";
-            document.getElementById("book-isbn").textContent = book.isbn || "N/A";
-            document.getElementById("book-issue-date").textContent = book.publication_year || "N/A";
-            document.getElementById("book-description").textContent = book.description || "N/A";
-            document.getElementById("book-status").textContent = book.status || "N/A";
-            document.getElementById("book-updated-at").textContent = book.updated_at ? new Date(book.updated_at).toLocaleDateString() : "N/A";
-            document.getElementById("book-cover-image").src = book.cover_image || "https://via.placeholder.com/150x200/cccccc/000000?text=No+Cover";
+            document.getElementById("book-title").textContent =
+              book.title || "N/A";
+            document.getElementById("book-author").textContent =
+              book.author || "N/A";
+            document.getElementById("book-genre").textContent =
+              book.genre || "N/A";
+            document.getElementById("book-isbn").textContent =
+              book.isbn || "N/A";
+            document.getElementById("book-issue-date").textContent =
+              book.publication_year || "N/A";
+            document.getElementById("book-description").textContent =
+              book.description || "N/A";
+            document.getElementById("book-status").textContent =
+              book.status || "N/A";
+            document.getElementById("book-updated-at").textContent =
+              book.updated_at
+                ? new Date(book.updated_at).toLocaleDateString()
+                : "N/A";
+            document.getElementById("book-cover-image").src =
+              book.cover_image ||
+              "https://via.placeholder.com/150x200/cccccc/000000?text=No+Cover";
             openModal("view-book-modal");
           })
           .catch((error) => {
@@ -447,7 +481,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector(".confirm-borrow-btn").dataset.id = id;
         openModal("borrow-confirm-modal");
       } else if (btn.classList.contains("wishlist-btn")) {
-        // Implement wishlist functionality
         showNotification("Added to wishlist", "success");
       }
     });
@@ -572,36 +605,41 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   window.addEventListener("click", function (e) {
-    if (e.target.classList.contains("modal") || e.target.classList.contains("modal-overlay")) {
+    if (
+      e.target.classList.contains("modal") ||
+      e.target.classList.contains("modal-overlay")
+    ) {
       e.target.style.display = "none";
     }
   });
 
-  // Borrow book confirmation
-  document.querySelector(".confirm-borrow-btn").addEventListener("click", function () {
-    const bookId = this.dataset.id;
-    fetch(`/api/books/${bookId}/borrow`, {
-      method: "POST",
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        showNotification("Book borrowed successfully!", "success");
-        loadBooks();
-        updateStats();
-        closeModal("borrow-confirm-modal");
-        closeModal("view-book-modal");
+  document
+    .querySelector(".confirm-borrow-btn")
+    .addEventListener("click", function () {
+      const bookId = this.dataset.id;
+      fetch(`/api/books/${bookId}/borrow`, {
+        method: "POST",
       })
-      .catch((error) => {
-        console.error("Error borrowing book:", error);
-        showNotification("Failed to borrow book", "error");
-      });
-  });
+        .then((response) => response.json())
+        .then((result) => {
+          showNotification("Book borrowed successfully!", "success");
+          loadBooks();
+          updateStats();
+          closeModal("borrow-confirm-modal");
+          closeModal("view-book-modal");
+        })
+        .catch((error) => {
+          console.error("Error borrowing book:", error);
+          showNotification("Failed to borrow book", "error");
+        });
+    });
 
-  document.querySelector(".cancel-borrow-btn").addEventListener("click", function () {
-    closeModal("borrow-confirm-modal");
-  });
+  document
+    .querySelector(".cancel-borrow-btn")
+    .addEventListener("click", function () {
+      closeModal("borrow-confirm-modal");
+    });
 
-  // Return book functionality
   document.addEventListener("click", function (e) {
     if (e.target.classList.contains("return-book-btn")) {
       const bookId = e.target.dataset.id;

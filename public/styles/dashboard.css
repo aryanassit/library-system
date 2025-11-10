@@ -165,6 +165,32 @@ body {
   transition: all 0.3s ease;
   font-size: 1.3rem !important;
   margin: 0;
+  position: relative;
+}
+
+.mark-read-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px !important;
+  background: var(--primary-accent);
+  color: var(--dashboard-bg);
+}
+
+.notification-item span{
+  display: flex;
+    justify-content: space-between;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  width: 10px;
+  height: 10px;
+  background: var(--error);
+  border-radius: 50%;
+  border: 2px solid var(--dashboard-bg);
 }
 .wishlist-btn {
   background: transparent;
@@ -472,11 +498,18 @@ td {
 
 .status.available {
   background: var(--success);
+  text-transform: capitalize;
   color: white;
 }
 
-.status.borrowed {
+.status.unavailable {
   background: var(--warning);
+  text-transform: capitalize;
+  color: white;
+}
+.status.removed {
+  text-transform: capitalize;
+  background: var(--error);
   color: white;
 }
 
@@ -679,14 +712,58 @@ td {
 
 .modal-content {
   background-color: var(--card-bg);
-  margin: 5% auto;
+  margin: 1% auto;
   padding: 2rem;
   border: 1px solid var(--border-color);
   border-radius: 12px;
   width: 90%;
+  max-height: 99%;
   max-width: 500px;
   box-shadow: var(--shadow);
   animation: modalFadeIn 0.3s ease-out;
+  overflow-y: scroll;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+}
+
+.modal-header {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.modal-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.clear-recent-activities-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 0.5rem 0.8rem !important;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.clear-recent-activities-btn:hover {
+  background: var(--error);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.clear-recent-activities-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(248, 81, 73, 0.2);
 }
 
 @keyframes modalFadeIn {
@@ -1090,7 +1167,7 @@ td {
   outline: none;
   box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
 }
-/* Book Details Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1248,7 +1325,11 @@ td {
   font-weight: 600;
 }
 
-.detail-value.status-issued {
+.detail-value.status-unavailable {
+  color: var(--warning);
+  font-weight: 600;
+}
+.detail-value.status-removed {
   color: var(--error);
   font-weight: 600;
 }

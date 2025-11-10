@@ -34,10 +34,9 @@ db.serialize(() => {
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-  // Add email column if it doesn't exist
   db.run(`ALTER TABLE ratings ADD COLUMN email TEXT`, (err) => {
-    if (err && !err.message.includes('duplicate column name')) {
-      console.error('Error adding email column:', err.message);
+    if (err && !err.message.includes("duplicate column name")) {
+      console.error("Error adding email column:", err.message);
     }
   });
 });

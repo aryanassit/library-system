@@ -27,7 +27,6 @@ router.get("/", (req, res) => {
     params.push(role);
   }
 
-  // Only show non-deleted users unless explicitly requested
   if (includeDeleted !== "true") {
     conditions.push("is_deleted = FALSE");
   }
@@ -105,6 +104,15 @@ router.post("/", async (req, res) => {
         `New user registered: ${name} (${email})`,
       ]);
 
+      const notificationsDb = require("../database/submissions_db");
+      notificationsDb.run(
+        "INSERT INTO notifications (type, message) VALUES (?, ?)",
+        [
+          "user_registered",
+          `New user "${name}" has registered with email ${email}.`,
+        ]
+      );
+
       res
         .status(201)
         .json({ id: this.lastID, message: "User created successfully" });
@@ -156,48 +164,56 @@ router.put("/:id", async (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
-  const { permanent } = req.query; // Check if permanent deletion is requested
+  const { permanent } = req.query;
 
-  db.get("SELECT name, email, is_deleted FROM users WHERE id = ?", [id], (err, user) => {
-    if (err) {
-      console.error("Error fetching user for deletion:", err);
-      return res.status(500).json({ error: "Failed to delete user" });
+  db.get(
+    "SELECT name, email, is_deleted FROM users WHERE id = ?",
+    [id],
+    (err, user) => {
+      if (err) {
+        console.error("Error fetching user for deletion:", err);
+        return res.status(500).json({ error: "Failed to delete user" });
+      }
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (permanent === "true") {
+        db.run("DELETE FROM users WHERE id = ?", [id], function (err) {
+          if (err) {
+            console.error("Error permanently deleting user:", err);
+            return res
+              .status(500)
+              .json({ error: "Failed to permanently delete user" });
+          }
+
+          db.run("INSERT INTO activities (description) VALUES (?)", [
+            `User permanently deleted: ${user.name} (${user.email})`,
+          ]);
+
+          res.json({ message: "User permanently deleted successfully" });
+        });
+      } else {
+        db.run(
+          "UPDATE users SET is_deleted = TRUE, deleted_at = CURRENT_TIMESTAMP WHERE id = ?",
+          [id],
+          function (err) {
+            if (err) {
+              console.error("Error soft deleting user:", err);
+              return res.status(500).json({ error: "Failed to delete user" });
+            }
+
+            db.run("INSERT INTO activities (description) VALUES (?)", [
+              `User moved to trash: ${user.name} (${user.email})`,
+            ]);
+
+            res.json({ message: "User moved to trash successfully" });
+          }
+        );
+      }
     }
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    if (permanent === "true") {
-      // Permanent deletion
-      db.run("DELETE FROM users WHERE id = ?", [id], function (err) {
-        if (err) {
-          console.error("Error permanently deleting user:", err);
-          return res.status(500).json({ error: "Failed to permanently delete user" });
-        }
-
-        db.run("INSERT INTO activities (description) VALUES (?)", [
-          `User permanently deleted: ${user.name} (${user.email})`,
-        ]);
-
-        res.json({ message: "User permanently deleted successfully" });
-      });
-    } else {
-      // Soft delete
-      db.run("UPDATE users SET is_deleted = TRUE, deleted_at = CURRENT_TIMESTAMP WHERE id = ?", [id], function (err) {
-        if (err) {
-          console.error("Error soft deleting user:", err);
-          return res.status(500).json({ error: "Failed to delete user" });
-        }
-
-        db.run("INSERT INTO activities (description) VALUES (?)", [
-          `User moved to trash: ${user.name} (${user.email})`,
-        ]);
-
-        res.json({ message: "User moved to trash successfully" });
-      });
-    }
-  });
+  );
 });
 
 router.delete("/", requireAdmin, (req, res) => {
@@ -215,30 +231,37 @@ router.delete("/", requireAdmin, (req, res) => {
   });
 });
 
-// Add restore endpoint
 router.post("/:id/restore", (req, res) => {
   const { id } = req.params;
 
-  db.run("UPDATE users SET is_deleted = FALSE, deleted_at = NULL WHERE id = ?", [id], function (err) {
-    if (err) {
-      console.error("Error restoring user:", err);
-      return res.status(500).json({ error: "Failed to restore user" });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    db.get("SELECT name, email FROM users WHERE id = ?", [id], (err, user) => {
-      if (!err && user) {
-        db.run("INSERT INTO activities (description) VALUES (?)", [
-          `User restored: ${user.name} (${user.email})`,
-        ]);
+  db.run(
+    "UPDATE users SET is_deleted = FALSE, deleted_at = NULL WHERE id = ?",
+    [id],
+    function (err) {
+      if (err) {
+        console.error("Error restoring user:", err);
+        return res.status(500).json({ error: "Failed to restore user" });
       }
-    });
 
-    res.json({ message: "User restored successfully" });
-  });
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      db.get(
+        "SELECT name, email FROM users WHERE id = ?",
+        [id],
+        (err, user) => {
+          if (!err && user) {
+            db.run("INSERT INTO activities (description) VALUES (?)", [
+              `User restored: ${user.name} (${user.email})`,
+            ]);
+          }
+        }
+      );
+
+      res.json({ message: "User restored successfully" });
+    }
+  );
 });
 
 module.exports = router;

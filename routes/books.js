@@ -20,7 +20,6 @@ router.get("/", (req, res) => {
     params.push(status);
   }
 
-  // Only show non-deleted books unless explicitly requested
   if (includeDeleted !== "true") {
     conditions.push("is_deleted = FALSE");
   }
@@ -59,50 +58,178 @@ router.get("/:id", (req, res) => {
   });
 });
 
+// Helper function to validate ISBN
+function isValidISBN(isbn) {
+  // Remove hyphens and spaces
+  isbn = isbn.replace(/[-\s]/g, '');
+
+  if (isbn.length === 10) {
+    // ISBN-10 validation
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(isbn[i]) * (10 - i);
+    }
+    let checkDigit = isbn[9];
+    if (checkDigit === 'X') checkDigit = 10;
+    else checkDigit = parseInt(checkDigit);
+    sum += checkDigit;
+    return sum % 11 === 0;
+  } else if (isbn.length === 13) {
+    // ISBN-13 validation
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(isbn[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    let checkDigit = (10 - (sum % 10)) % 10;
+    return parseInt(isbn[12]) === checkDigit;
+  }
+  return false;
+}
+
 router.post("/", (req, res) => {
   const { title, author, isbn, genre, publication_year, description, status } =
     req.body;
 
-  if (!title || !author || !isbn) {
+  // Trim and validate required fields
+  const trimmedTitle = title?.trim();
+  const trimmedAuthor = author?.trim();
+  const trimmedIsbn = isbn?.trim();
+
+  if (!trimmedTitle || !trimmedAuthor || !trimmedIsbn) {
     return res
       .status(400)
-      .json({ error: "Title, author, and ISBN are required" });
+      .json({ error: "Title, author, and ISBN are required and cannot be empty" });
   }
 
-  const query = `INSERT INTO books (title, author, isbn, genre, publication_year, description, status)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  const params = [
-    title,
-    author,
-    isbn,
-    genre,
-    publication_year,
-    description,
-    status || "available",
-  ];
+  // Validate ISBN format
+  if (!isValidISBN(trimmedIsbn)) {
+    return res.status(400).json({ error: "Invalid ISBN format" });
+  }
 
-  db.run(query, params, function (err) {
+  // Validate publication_year
+  const currentYear = new Date().getFullYear();
+  if (publication_year !== undefined && publication_year !== null) {
+    const year = parseInt(publication_year);
+    if (isNaN(year) || year < 1000 || year > currentYear) {
+      return res.status(400).json({ error: "Publication year must be a valid integer between 1000 and current year" });
+    }
+  }
+
+  // Validate status
+  const allowedStatuses = ['available', 'borrowed', 'unavailable', 'removed'];
+  const bookStatus = status || 'available';
+  if (!allowedStatuses.includes(bookStatus)) {
+    return res.status(400).json({ error: "Invalid status value" });
+  }
+
+  // Check ISBN uniqueness
+  db.get("SELECT id FROM books WHERE isbn = ? AND is_deleted = FALSE", [trimmedIsbn], (err, row) => {
     if (err) {
-      console.error("Error creating book:", err);
-      return res.status(500).json({ error: "Failed to create book" });
+      console.error("Error checking ISBN uniqueness:", err);
+      return res.status(500).json({ error: "Failed to validate book" });
+    }
+    if (row) {
+      return res.status(400).json({ error: "ISBN already exists" });
     }
 
-    db.run("INSERT INTO activities (description) VALUES (?)", [
-      `New book added: ${title} by ${author}`,
-    ]);
+    // Proceed with insertion
+    const query = `INSERT INTO books (title, author, isbn, genre, publication_year, description, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const params = [
+      trimmedTitle,
+      trimmedAuthor,
+      trimmedIsbn,
+      genre?.trim() || null,
+      publication_year,
+      description?.trim() || null,
+      bookStatus,
+    ];
 
-    // Create notification for book import/addition
-    const notificationsDb = require("../database/submissions_db");
-    notificationsDb.run("INSERT INTO notifications (type, message, related_id) VALUES (?, ?, ?)", [
-      "book_added",
-      `New book "${title}" by ${author} has been added to the library.`,
-      this.lastID
-    ]);
+    db.run(query, params, function (err) {
+      if (err) {
+        console.error("Error creating book:", err);
+        return res.status(500).json({ error: "Failed to create book" });
+      }
 
-    res
-      .status(201)
-      .json({ id: this.lastID, message: "Book created successfully" });
+      db.run("INSERT INTO activities (description) VALUES (?)", [
+        `New book added: ${trimmedTitle} by ${trimmedAuthor}`,
+      ]);
+
+      const notificationsDb = require("../database/submissions_db");
+      notificationsDb.run(
+        "INSERT INTO notifications (type, message, related_id) VALUES (?, ?, ?)",
+        [
+          "book_added",
+          `New book "${trimmedTitle}" by ${trimmedAuthor} has been added to the library.`,
+          this.lastID,
+        ]
+      );
+
+      res
+        .status(201)
+        .json({ id: this.lastID, message: "Book created successfully" });
+    });
   });
+});
+
+router.post("/import", (req, res) => {
+  const { books } = req.body;
+
+  if (!Array.isArray(books)) {
+    return res.status(400).json({ error: "Books must be an array" });
+  }
+
+  let addedCount = 0;
+  let errors = [];
+
+  books.forEach((bookData, index) => {
+    if (bookData.title && bookData.author) {
+      const query = `INSERT INTO books (title, author, isbn, genre, publication_year, description, status)
+                      VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      const params = [
+        bookData.title,
+        bookData.author,
+        bookData.isbn || "",
+        bookData.genre || "",
+        bookData.publication_year || null,
+        bookData.description || "",
+        bookData.status || "available",
+      ];
+
+      db.run(query, params, function (err) {
+        if (err) {
+          errors.push(`Book ${index + 1}: ${err.message}`);
+        } else {
+          addedCount++;
+        }
+      });
+    } else {
+      errors.push(`Book ${index + 1}: Missing title or author`);
+    }
+  });
+
+  setTimeout(() => {
+    if (addedCount > 0) {
+      db.run("INSERT INTO activities (description) VALUES (?)", [
+        `Bulk import: ${addedCount} books imported`,
+      ]);
+
+      const notificationsDb = require("../database/submissions_db");
+      notificationsDb.run(
+        "INSERT INTO notifications (type, message) VALUES (?, ?)",
+        [
+          "bulk_import",
+          `${addedCount} books have been imported in bulk.`,
+        ]
+      );
+    }
+
+    res.json({
+      message: `Imported ${addedCount} books successfully`,
+      addedCount,
+      errors,
+    });
+  }, 100); // Small delay to allow async operations
 });
 
 router.put("/:id", (req, res) => {
@@ -138,48 +265,56 @@ router.put("/:id", (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
-  const { permanent } = req.query; // Check if permanent deletion is requested
+  const { permanent } = req.query;
 
-  db.get("SELECT title, author, is_deleted FROM books WHERE id = ?", [id], (err, book) => {
-    if (err) {
-      console.error("Error fetching book for deletion:", err);
-      return res.status(500).json({ error: "Failed to delete book" });
+  db.get(
+    "SELECT title, author, is_deleted FROM books WHERE id = ?",
+    [id],
+    (err, book) => {
+      if (err) {
+        console.error("Error fetching book for deletion:", err);
+        return res.status(500).json({ error: "Failed to delete book" });
+      }
+
+      if (!book) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+
+      if (permanent === "true") {
+        db.run("DELETE FROM books WHERE id = ?", [id], function (err) {
+          if (err) {
+            console.error("Error permanently deleting book:", err);
+            return res
+              .status(500)
+              .json({ error: "Failed to permanently delete book" });
+          }
+
+          db.run("INSERT INTO activities (description) VALUES (?)", [
+            `Book permanently deleted: ${book.title} by ${book.author}`,
+          ]);
+
+          res.json({ message: "Book permanently deleted successfully" });
+        });
+      } else {
+        db.run(
+          "UPDATE books SET is_deleted = TRUE, deleted_at = CURRENT_TIMESTAMP WHERE id = ?",
+          [id],
+          function (err) {
+            if (err) {
+              console.error("Error soft deleting book:", err);
+              return res.status(500).json({ error: "Failed to delete book" });
+            }
+
+            db.run("INSERT INTO activities (description) VALUES (?)", [
+              `Book moved to trash: ${book.title} by ${book.author}`,
+            ]);
+
+            res.json({ message: "Book moved to trash successfully" });
+          }
+        );
+      }
     }
-
-    if (!book) {
-      return res.status(404).json({ error: "Book not found" });
-    }
-
-    if (permanent === "true") {
-      // Permanent deletion
-      db.run("DELETE FROM books WHERE id = ?", [id], function (err) {
-        if (err) {
-          console.error("Error permanently deleting book:", err);
-          return res.status(500).json({ error: "Failed to permanently delete book" });
-        }
-
-        db.run("INSERT INTO activities (description) VALUES (?)", [
-          `Book permanently deleted: ${book.title} by ${book.author}`,
-        ]);
-
-        res.json({ message: "Book permanently deleted successfully" });
-      });
-    } else {
-      // Soft delete
-      db.run("UPDATE books SET is_deleted = TRUE, deleted_at = CURRENT_TIMESTAMP WHERE id = ?", [id], function (err) {
-        if (err) {
-          console.error("Error soft deleting book:", err);
-          return res.status(500).json({ error: "Failed to delete book" });
-        }
-
-        db.run("INSERT INTO activities (description) VALUES (?)", [
-          `Book moved to trash: ${book.title} by ${book.author}`,
-        ]);
-
-        res.json({ message: "Book moved to trash successfully" });
-      });
-    }
-  });
+  );
 });
 
 router.delete("/", requireAdmin, (req, res) => {
@@ -198,8 +333,7 @@ router.delete("/", requireAdmin, (req, res) => {
 });
 
 router.get("/borrowed", (req, res) => {
-  // Assuming user_id is available from session or auth middleware
-  const userId = req.session.userId; // Adjust based on your auth setup
+  const userId = req.session.userId;
 
   if (!userId) {
     return res.status(401).json({ error: "User not authenticated" });
@@ -224,139 +358,177 @@ router.get("/borrowed", (req, res) => {
 
 router.post("/:id/borrow", (req, res) => {
   const { id } = req.params;
-  const userId = req.session.userId; // Adjust based on your auth setup
+  const userId = req.session.userId;
 
   if (!userId) {
     return res.status(401).json({ error: "User not authenticated" });
   }
 
-  // Check if book is available
-  db.get("SELECT * FROM books WHERE id = ? AND status = 'available'", [id], (err, book) => {
-    if (err) {
-      console.error("Error checking book availability:", err);
-      return res.status(500).json({ error: "Failed to borrow book" });
-    }
-
-    if (!book) {
-      return res.status(400).json({ error: "Book is not available for borrowing" });
-    }
-
-    // Check if user already has this book borrowed
-    db.get("SELECT * FROM borrowings WHERE user_id = ? AND book_id = ? AND status = 'active'", [userId, id], (err, existingBorrow) => {
+  db.get(
+    "SELECT * FROM books WHERE id = ? AND status = 'available'",
+    [id],
+    (err, book) => {
       if (err) {
-        console.error("Error checking existing borrow:", err);
+        console.error("Error checking book availability:", err);
         return res.status(500).json({ error: "Failed to borrow book" });
       }
 
-      if (existingBorrow) {
-        return res.status(400).json({ error: "You have already borrowed this book" });
+      if (!book) {
+        return res
+          .status(400)
+          .json({ error: "Book is not available for borrowing" });
       }
 
-      // Calculate due date (14 days from now)
-      const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 14);
-
-      // Insert borrowing record
-      const borrowQuery = "INSERT INTO borrowings (user_id, book_id, due_date) VALUES (?, ?, ?)";
-      db.run(borrowQuery, [userId, id, dueDate.toISOString()], function (err) {
-        if (err) {
-          console.error("Error creating borrowing record:", err);
-          return res.status(500).json({ error: "Failed to borrow book" });
-        }
-
-        // Update book status
-        db.run("UPDATE books SET status = 'borrowed' WHERE id = ?", [id], (err) => {
+      db.get(
+        "SELECT * FROM borrowings WHERE user_id = ? AND book_id = ? AND status = 'active'",
+        [userId, id],
+        (err, existingBorrow) => {
           if (err) {
-            console.error("Error updating book status:", err);
+            console.error("Error checking existing borrow:", err);
             return res.status(500).json({ error: "Failed to borrow book" });
           }
 
-          // Add activity
-          db.run("INSERT INTO activities (description, user_id) VALUES (?, ?)", [
-            `Book "${book.title}" borrowed by user`,
-            userId
-          ]);
+          if (existingBorrow) {
+            return res
+              .status(400)
+              .json({ error: "You have already borrowed this book" });
+          }
 
-          res.json({ message: "Book borrowed successfully" });
-        });
-      });
-    });
-  });
+          const dueDate = new Date();
+          dueDate.setDate(dueDate.getDate() + 14);
+
+          const borrowQuery =
+            "INSERT INTO borrowings (user_id, book_id, due_date) VALUES (?, ?, ?)";
+          db.run(
+            borrowQuery,
+            [userId, id, dueDate.toISOString()],
+            function (err) {
+              if (err) {
+                console.error("Error creating borrowing record:", err);
+                return res.status(500).json({ error: "Failed to borrow book" });
+              }
+
+              db.run(
+                "UPDATE books SET status = 'borrowed' WHERE id = ?",
+                [id],
+                (err) => {
+                  if (err) {
+                    console.error("Error updating book status:", err);
+                    return res
+                      .status(500)
+                      .json({ error: "Failed to borrow book" });
+                  }
+
+                  db.run(
+                    "INSERT INTO activities (description, user_id) VALUES (?, ?)",
+                    [`Book "${book.title}" borrowed by user`, userId]
+                  );
+
+                  res.json({ message: "Book borrowed successfully" });
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 });
 
 router.post("/:id/return", (req, res) => {
   const { id } = req.params;
-  const userId = req.session.userId; // Adjust based on your auth setup
+  const userId = req.session.userId;
 
   if (!userId) {
     return res.status(401).json({ error: "User not authenticated" });
   }
 
-  // Find active borrowing record
-  db.get("SELECT * FROM borrowings WHERE user_id = ? AND book_id = ? AND status = 'active'", [userId, id], (err, borrowing) => {
-    if (err) {
-      console.error("Error finding borrowing record:", err);
-      return res.status(500).json({ error: "Failed to return book" });
-    }
-
-    if (!borrowing) {
-      return res.status(400).json({ error: "No active borrowing record found for this book" });
-    }
-
-    // Update borrowing record
-    db.run("UPDATE borrowings SET status = 'returned', return_date = CURRENT_TIMESTAMP WHERE id = ?", [borrowing.id], (err) => {
+  db.get(
+    "SELECT * FROM borrowings WHERE user_id = ? AND book_id = ? AND status = 'active'",
+    [userId, id],
+    (err, borrowing) => {
       if (err) {
-        console.error("Error updating borrowing record:", err);
+        console.error("Error finding borrowing record:", err);
         return res.status(500).json({ error: "Failed to return book" });
       }
 
-      // Update book status
-      db.run("UPDATE books SET status = 'available' WHERE id = ?", [id], (err) => {
-        if (err) {
-          console.error("Error updating book status:", err);
-          return res.status(500).json({ error: "Failed to return book" });
-        }
+      if (!borrowing) {
+        return res
+          .status(400)
+          .json({ error: "No active borrowing record found for this book" });
+      }
 
-        // Add activity
-        db.get("SELECT title FROM books WHERE id = ?", [id], (err, book) => {
-          if (!err && book) {
-            db.run("INSERT INTO activities (description, user_id) VALUES (?, ?)", [
-              `Book "${book.title}" returned by user`,
-              userId
-            ]);
+      db.run(
+        "UPDATE borrowings SET status = 'returned', return_date = CURRENT_TIMESTAMP WHERE id = ?",
+        [borrowing.id],
+        (err) => {
+          if (err) {
+            console.error("Error updating borrowing record:", err);
+            return res.status(500).json({ error: "Failed to return book" });
           }
-        });
 
-        res.json({ message: "Book returned successfully" });
-      });
-    });
-  });
+          db.run(
+            "UPDATE books SET status = 'available' WHERE id = ?",
+            [id],
+            (err) => {
+              if (err) {
+                console.error("Error updating book status:", err);
+                return res.status(500).json({ error: "Failed to return book" });
+              }
+
+              db.get(
+                "SELECT title FROM books WHERE id = ?",
+                [id],
+                (err, book) => {
+                  if (!err && book) {
+                    db.run(
+                      "INSERT INTO activities (description, user_id) VALUES (?, ?)",
+                      [`Book "${book.title}" returned by user`, userId]
+                    );
+                  }
+                }
+              );
+
+              res.json({ message: "Book returned successfully" });
+            }
+          );
+        }
+      );
+    }
+  );
 });
 
-// Add restore endpoint
 router.post("/:id/restore", (req, res) => {
   const { id } = req.params;
 
-  db.run("UPDATE books SET is_deleted = FALSE, deleted_at = NULL WHERE id = ?", [id], function (err) {
-    if (err) {
-      console.error("Error restoring book:", err);
-      return res.status(500).json({ error: "Failed to restore book" });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ error: "Book not found" });
-    }
-
-    db.get("SELECT title, author FROM books WHERE id = ?", [id], (err, book) => {
-      if (!err && book) {
-        db.run("INSERT INTO activities (description) VALUES (?)", [
-          `Book restored: ${book.title} by ${book.author}`,
-        ]);
+  db.run(
+    "UPDATE books SET is_deleted = FALSE, deleted_at = NULL WHERE id = ?",
+    [id],
+    function (err) {
+      if (err) {
+        console.error("Error restoring book:", err);
+        return res.status(500).json({ error: "Failed to restore book" });
       }
-    });
 
-    res.json({ message: "Book restored successfully" });
-  });
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+
+      db.get(
+        "SELECT title, author FROM books WHERE id = ?",
+        [id],
+        (err, book) => {
+          if (!err && book) {
+            db.run("INSERT INTO activities (description) VALUES (?)", [
+              `Book restored: ${book.title} by ${book.author}`,
+            ]);
+          }
+        }
+      );
+
+      res.json({ message: "Book restored successfully" });
+    }
+  );
 });
 
 module.exports = router;

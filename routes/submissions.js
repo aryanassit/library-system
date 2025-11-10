@@ -15,11 +15,19 @@ router.post("/rating", (req, res) => {
         return res.status(500).json({ error: err.message });
       }
 
-      // Add activity for new rating
       const mainDb = require("../database/db");
       mainDb.run("INSERT INTO activities (description) VALUES (?)", [
         `New rating submitted: ${stars} stars by ${user || email}`,
       ]);
+
+      const notificationsDb = require("../database/submissions_db");
+      notificationsDb.run(
+        "INSERT INTO notifications (type, message) VALUES (?, ?)",
+        [
+          "rating_submitted",
+          `New rating: ${stars} stars submitted by ${user || email}.`,
+        ]
+      );
 
       res.json({ message: "Rating submitted successfully", id: this.lastID });
     }
@@ -37,11 +45,19 @@ router.post("/contact", (req, res) => {
         return res.status(500).json({ error: err.message });
       }
 
-      // Add activity for new contact submission
       const mainDb = require("../database/db");
       mainDb.run("INSERT INTO activities (description) VALUES (?)", [
         `New feedback received from ${name} (${email})`,
       ]);
+
+      const notificationsDb = require("../database/submissions_db");
+      notificationsDb.run(
+        "INSERT INTO notifications (type, message) VALUES (?, ?)",
+        [
+          "contact_submitted",
+          `New contact form submission from ${name} (${email}).`,
+        ]
+      );
 
       res.json({
         message: "Contact form submitted successfully",
@@ -52,12 +68,16 @@ router.post("/contact", (req, res) => {
 });
 
 router.get("/rating", (req, res) => {
-  db.all("SELECT * FROM ratings WHERE stars > 3 ORDER BY timestamp DESC LIMIT 20", [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  db.all(
+    "SELECT * FROM ratings WHERE stars > 3 ORDER BY timestamp DESC LIMIT 20",
+    [],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json(rows);
     }
-    res.json(rows);
-  });
+  );
 });
 
 router.post("/rating/reply", (req, res) => {
@@ -89,34 +109,55 @@ router.delete("/contact", requireAdmin, (req, res) => {
   db.run("DELETE FROM contact_submissions", function (err) {
     if (err) {
       console.error("Error deleting all contact submissions:", err);
-      return res.status(500).json({ error: "Failed to delete all contact submissions" });
+      return res
+        .status(500)
+        .json({ error: "Failed to delete all contact submissions" });
     }
     res.json({ message: "All contact submissions deleted successfully" });
   });
 });
 
-// Get notifications
 router.get("/notifications", (req, res) => {
-  db.all("SELECT * FROM notifications ORDER BY timestamp DESC LIMIT 50", [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  db.all(
+    "SELECT * FROM notifications ORDER BY timestamp DESC LIMIT 50",
+    [],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json(rows);
     }
-    res.json(rows);
-  });
+  );
 });
 
-// Mark notification as read
 router.put("/notifications/:id/read", (req, res) => {
   const { id } = req.params;
-  db.run("UPDATE notifications SET is_read = 1 WHERE id = ?", [id], function (err) {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  db.run(
+    "UPDATE notifications SET is_read = 1 WHERE id = ?",
+    [id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ message: "Notification marked as read" });
     }
-    res.json({ message: "Notification marked as read" });
-  });
+  );
 });
 
-// Delete notification
+router.put("/notifications/:id/unread", (req, res) => {
+  const { id } = req.params;
+  db.run(
+    "UPDATE notifications SET is_read = 0 WHERE id = ?",
+    [id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ message: "Notification marked as unread" });
+    }
+  );
+});
+
 router.delete("/notifications/:id", (req, res) => {
   const { id } = req.params;
   db.run("DELETE FROM notifications WHERE id = ?", [id], function (err) {
